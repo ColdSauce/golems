@@ -17,7 +17,7 @@ def initialize_game():
     pygame.time.set_timer(move_event, 1000)
     surface = pygame.display.set_mode((1200, 900), 0, 32)
     movable_characters = []
-    main_player = MovableCharacter("P1",pygame.image.load, ["res/main_player/up.jpg", "res/main_player/right.jpg", "res/main_player/down.jpg", "res/main_player/left.jpg"])
+    main_player = MovableCharacter("P1",pygame.image.load, ["res/main_player/up.png", "res/main_player/right.png", "res/main_player/down.png", "res/main_player/left.png"])
     main_player.change_direction(main_player.current_direction, override_opt = True)
     movable_characters.append(main_player)
     return Game(clock,surface,movable_characters,main_player, move_event)
