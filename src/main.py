@@ -51,8 +51,8 @@ def game_loop():
         
         # Just some placeholder background / debugging grid show
         for x in range(0, 1250, 50):
-			for y in range(0, 950, 50):
-				pygame.draw.circle(surface, (128, 128, 128), (x, y), 4, 0)
+            for y in range(0, 950, 50):
+                pygame.draw.circle(surface, (128, 128, 128), (x, y), 4, 0)
 
         for character in movable_characters:
             if character.moving:
@@ -64,8 +64,8 @@ def game_loop():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-			elif event.type == pygame.VIDEORESIZE:
-				pygame.display.set_mode(event.size, pygame.RESIZABLE)
+            elif event.type == pygame.VIDEORESIZE:
+                pygame.display.set_mode(event.size, pygame.RESIZABLE)
 
             keypress_event(event, main_player)
 
