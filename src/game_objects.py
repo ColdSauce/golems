@@ -36,15 +36,16 @@ class EnemyPlayer(MovableCharacter):
     pass
 
 class Direction:
-    UP = 0
+    UP    = 0
     RIGHT = 1
-    DOWN = 2
-    LEFT = 3
+    DOWN  = 2
+    LEFT  = 3
 
 class Element:
-    FIRE   = 1
-    NATURE = 2
-    WATER  = 3
+    NEUTRAL = 0
+    FIRE    = 1
+    NATURE  = 2
+    WATER   = 3
 
 class GenericBot:
     def __init__(self, name, image, speed=0, health=100,mana=100,element=Element.FIRE,spell_xp=dict(),list_of_spells=[]):

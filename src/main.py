@@ -35,6 +35,8 @@ def keypress_event(event,main_player):
             main_player.change_direction(Direction.DOWN)
         elif event.key == K_LEFT:
             main_player.change_direction(Direction.LEFT)
+        else:
+            main_player.moving = False # If the player pushed an invalid key, don't move character.
 # run the game loop
 def game_loop():
     FPS = 30 
@@ -47,7 +49,7 @@ def game_loop():
     move_event = game_instance.move_event
 
     while True:
-        surface.fill((0,0,0))
+        surface.fill((10,10,10))
 
         for character in movable_characters:
             if character.moving:
