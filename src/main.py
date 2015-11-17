@@ -12,7 +12,7 @@ class Game:
 def initialize_game():
     pygame.init()
     clock = pygame.time.Clock()
-    surface = pygame.display.set_mode((1200, 900), 0, 32)
+    surface = pygame.display.set_mode((0, 0), pygame.RESIZABLE)
     movable_characters = []
     main_player = MovableCharacter("P1",pygame.image.load, ["res/main_player/up.png", "res/main_player/right.png", "res/main_player/down.png", "res/main_player/left.png"])
     main_player.change_direction(main_player.current_direction, override_opt = True)
@@ -64,6 +64,8 @@ def game_loop():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
+			elif event.type == pygame.VIDEORESIZE:
+				pygame.display.set_mode(event.size, pygame.RESIZABLE)
 
             keypress_event(event, main_player)
 
