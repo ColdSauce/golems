@@ -26,13 +26,13 @@ def keypress_event(event,main_player):
         # Use change_direction instead of just changing the
         # variable since it also changes the sprite image
         main_player.moving = True
-        if event.key == K_UP:
+        if event.key == K_UP or event.key == K_KP8:
             main_player.change_direction(Direction.UP)
-        elif event.key == K_RIGHT:
+        elif event.key == K_RIGHT or event.key == K_KP6:
             main_player.change_direction(Direction.RIGHT)
-        elif event.key == K_DOWN:
+        elif event.key == K_DOWN or event.key == K_KP2:
             main_player.change_direction(Direction.DOWN)
-        elif event.key == K_LEFT:
+        elif event.key == K_LEFT or event.key == K_KP4:
             main_player.change_direction(Direction.LEFT)
         else:
             main_player.moving = False # If the player pushed an invalid key, don't move character.
@@ -48,6 +48,8 @@ def game_loop():
 
     while True:
         surface.fill((10,10,10))
+        
+        # Just some placeholder background / debugging grid show
         for x in range(0, 1250, 50):
 			for y in range(0, 950, 50):
 				pygame.draw.circle(surface, (128, 128, 128), (x, y), 4, 0)
