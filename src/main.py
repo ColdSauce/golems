@@ -7,27 +7,27 @@ class GolemsGame:
         self.clock = pygame.time.Clock()
         self.movable_characters = []
         self.main_player = MovableCharacter("P1",pygame.image.load, ["res/main_player/up.png", "res/main_player/right.png", "res/main_player/down.png", "res/main_player/left.png"])
-        self.main_player.change_direction(main_player.current_direction, override_opt = True)
-        movable_characters.append(main_player)
+        self.main_player.change_direction(self.main_player.current_direction, override_opt = True)
+        self.movable_characters.append(self.main_player)
 
-    def keypress_event(event,main_player):
+    def keypress_event(self,event,main_player):
         if self.main_player.moving: # Player's currently moving, ignore keypresses
             return;
         # Use change_direction instead of just changing the
         # variable since it also changes the sprite image
         self.main_player.moving = True
-        if event.key == K_UP or event.key == K_KP8:
+        if event.key == pygame.K_UP or event.key == pygame.K_KP8:
             self.main_player.change_direction(Direction.UP)
-        elif event.key == K_RIGHT or event.key == K_KP6:
+        elif event.key == pygame.K_RIGHT or event.key == pygame.K_KP6:
             self.main_player.change_direction(Direction.RIGHT)
-        elif event.key == K_DOWN or event.key == K_KP2:
+        elif event.key == pygame.K_DOWN or event.key == pygame.K_KP2:
             self.main_player.change_direction(Direction.DOWN)
-        elif event.key == K_LEFT or event.key == K_KP4:
+        elif event.key == pygame.K_LEFT or event.key == pygame.K_KP4:
             self.main_player.change_direction(Direction.LEFT)
         else:
             self.main_player.moving = False # If the player pushed an invalid key, don't move character.
     # run the game loop
-    def game_loop():
+    def game_loop(self):
         FPS = 30
         surface = pygame.display.get_surface()
 
@@ -46,15 +46,15 @@ class GolemsGame:
                 surface.blit(character.sprite, (character.x, character.y))
 
             for event in pygame.event.get():
-                if event.type == QUIT:
+                if event.type == pygame.QUIT:
                     return
                 elif event.type == pygame.VIDEORESIZE:
                     pygame.display.set_mode(event.size, pygame.RESIZABLE)
                 elif event.type == pygame.KEYDOWN:
-                    keypress_event(event, main_player)
+                    self.keypress_event(event, self.main_player)
 
             pygame.display.update()
-            clock.tick(FPS)
+            self.clock.tick(FPS)
      
     # Called when loading a saved state from the Journal
     def read_file(self, file_path):
