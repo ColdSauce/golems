@@ -58,9 +58,9 @@ class GolemsGame:
      
     # Called when loading a saved state from the Journal
     def read_file(self, file_path):
-        #stub
-        
+        stub = 0
+
     # Called when saving a saved state to the Journal
     def write_file(self, file_path):
-        #stub
+        stub = 0
 
