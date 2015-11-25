@@ -41,7 +41,24 @@ class GolemsGame:
 
             for character in self.movable_characters:
                 if character.moving:
-                    character.move()
+                    if character == self.main_player:
+                        character.move(5)
+                        if not character.moving:
+                            keys = pygame.key.get_pressed()
+                            if (keys[pygame.K_UP]) or (keys[pygame.K_KP8]):
+                                character.change_direction(Direction.UP)
+                                character.moving = True
+                            elif (keys[pygame.K_DOWN]) or (keys[pygame.K_KP2]):
+                                character.change_direction(Direction.DOWN)
+                                character.moving = True
+                            elif (keys[pygame.K_LEFT]) or (keys[pygame.K_KP4]):
+                                character.change_direction(Direction.LEFT)
+                                character.moving = True
+                            elif (keys[pygame.K_RIGHT]) or (keys[pygame.K_KP6]):
+                                character.change_direction(Direction.RIGHT)
+                                character.moving = True
+                    else:
+                        character.move()
                     
                 surface.blit(character.sprite, (character.x, character.y))
 

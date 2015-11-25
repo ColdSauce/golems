@@ -10,7 +10,7 @@ class MovableCharacter:
         elif direction == Direction.LEFT:
             self.x -= speed
         if ((direction == Direction.UP or direction == Direction.DOWN) and (self.y % 50 == 0)) or ((direction == Direction.LEFT or direction == Direction.RIGHT) and (self.x % 50 == 0)):
-			self.moving = False;
+            self.moving = False;
 
 
     def change_direction(self, direction, override_opt = False):
