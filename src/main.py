@@ -1,5 +1,4 @@
 import pygame
-from gi.repository import Gtk
 from game_objects import *
 
 class GolemsGame:
@@ -33,11 +32,12 @@ class GolemsGame:
 
         while True:
             surface.fill((10,10,10))
+            width, height = surface.get_size()
             
             # Just some placeholder background / debugging grid show
-            for x in range(0, 1250, 50):
-                for y in range(0, 950, 50):
-                    pygame.draw.circle(surface, (128, 128, 128), (x, y), 4, 0)
+            for x in range(-1250, 1250, 50):
+                for y in range(-950, 950, 50):
+                    pygame.draw.circle(surface, (128, 128, 128), ((width / 2) - self.main_player.x + x, (height / 2) - self.main_player.y + y), 4, 0)
 
             for character in self.movable_characters:
                 if character.moving:
@@ -59,8 +59,7 @@ class GolemsGame:
                                 character.moving = True
                     else:
                         character.move()
-                    
-                surface.blit(character.sprite, (character.x, character.y))
+                surface.blit(character.sprite, ((width / 2) - self.main_player.x + character.x, (height / 2) - self.main_player.y + character.y))
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
