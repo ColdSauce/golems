@@ -22,18 +22,19 @@ class GolemsActivity(sugar3.activity.activity.Activity):
         self._pycanvas = sugargame.canvas.PygameCanvas(self)
 
         # Create the game instance.
-        self.gameInstance = GolemsGame.GolemsGame()
+        self.gameInstance = GolemsGame()
 
         # Build the activity toolbar.
         self.buildToolbar()
 
         # Note that set_canvas implicitly calls read_file when
         # resuming from the Journal.
-        self.set_canvas(self._pygamecanvas)
+        self.set_canvas(self._pycanvas)
+        self._pycanvas.grab_focus()
 
         # Start the game running (self.game.run is called when the
         # activity constructor returns).
-        self._pygamecanvas.run_pygame(self.gameInstance.game_loop)
+        self._pycanvas.run_pygame(self.gameInstance.game_loop)
     
     # Create the Sugar Toolbar.
     def buildToolbar(self):
