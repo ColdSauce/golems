@@ -1,7 +1,11 @@
 import pygame
 from game_objects import *
 from pygame.locals import *
-from gi.repository import Gtk
+import sys
+
+isLinux = sys.platform.startswith("linux")
+if(isLinux):
+    from gi.repository import Gtk
 
 class GolemsGame:
     def __init__(self):
@@ -65,8 +69,9 @@ class GolemsGame:
                         character.move()
                 surface.blit(character.sprite, ((width / 2) - 25 - self.main_player.x + character.x, (height / 2) - 25 - self.main_player.y + character.y))
 
-            while Gtk.events_pending():
-                Gtk.main_iteration()
+            if(isLinux):
+                while Gtk.events_pending():
+                    Gtk.main_iteration()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
