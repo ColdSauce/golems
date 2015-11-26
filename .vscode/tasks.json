@@ -12,5 +12,17 @@
 	"version": "0.1.0",
 	"command": "C:\\Python27\\python.exe",
 	"showOutput": "always",
-	"args": ["testgame.py"]
+	"echoCommand": true,
+	"tasks": [
+		{
+			"args": ["testgame.py"],
+			"taskName": "Test",
+			"suppressTaskName": true
+		},
+		{
+			"args": ["-m", "cProfile", "testgame.py"],
+			"taskName": "Profile",
+			"suppressTaskName": true
+		}
+	]
 }

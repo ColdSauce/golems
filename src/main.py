@@ -1,4 +1,5 @@
 import pygame
+from worldmap import *
 from game_objects import *
 from pygame.locals import *
 import sys
@@ -14,6 +15,7 @@ class GolemsGame:
         self.main_player = MovableCharacter("P1",pygame.image.load, ["res/main_player/up.png", "res/main_player/right.png", "res/main_player/down.png", "res/main_player/left.png"])
         self.main_player.change_direction(self.main_player.current_direction, override_opt = True)
         self.movable_characters.append(self.main_player)
+        self.map = Map()
 
     def doKeys(self,char):
         if char.moving: # Player's currently moving, ignore keypresses
@@ -39,14 +41,10 @@ class GolemsGame:
         surface = pygame.display.get_surface()
 
         while True:
-            surface.fill((10,10,10))
+            surface.fill((0,0,0))
             width, height = surface.get_size()
+            self.map.render(surface, self.main_player.x, self.main_player.y)
             
-            # Just some placeholder background / debugging grid show
-            for x in range(-1250, 1250, 50):
-                for y in range(-950, 950, 50):
-                    pygame.draw.circle(surface, (128, 128, 128), ((width / 2) - 25 - self.main_player.x + x, (height / 2) - 25 - self.main_player.y + y), 4, 0)
-
             for character in self.movable_characters:
                 if character.moving:
                     if character == self.main_player:

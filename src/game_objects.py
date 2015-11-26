@@ -1,3 +1,8 @@
+class Tile:
+    def __init__(self, image, solid = False):
+        self.sprite = image
+        self.solid = solid
+
 class MovableCharacter:
     def move(self,speed = 2):
         direction = self.current_direction
