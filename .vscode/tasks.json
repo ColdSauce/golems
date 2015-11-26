@@ -16,12 +16,12 @@
 	"tasks": [
 		{
 			"args": ["testgame.py"],
-			"taskName": "Test",
+			"taskName": "test",
 			"suppressTaskName": true
 		},
 		{
 			"args": ["-m", "cProfile", "testgame.py"],
-			"taskName": "Profile",
+			"taskName": "profile",
 			"suppressTaskName": true
 		}
 	]

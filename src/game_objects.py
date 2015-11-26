@@ -7,14 +7,24 @@ class MovableCharacter:
     def move(self,speed = 2):
         direction = self.current_direction
         if direction == Direction.UP:
-            self.y -= speed
+            self.yOffset -= speed
         elif direction == Direction.RIGHT:
-            self.x += speed
+            self.xOffset += speed
         elif direction == Direction.DOWN:
-            self.y += speed
+            self.yOffset += speed
         elif direction == Direction.LEFT:
-            self.x -= speed
-        if ((direction == Direction.UP or direction == Direction.DOWN) and (self.y % 50 == 0)) or ((direction == Direction.LEFT or direction == Direction.RIGHT) and (self.x % 50 == 0)):
+            self.xOffset -= speed
+        if ((direction == Direction.UP or direction == Direction.DOWN) and (self.yOffset % 50 == 0)) or ((direction == Direction.LEFT or direction == Direction.RIGHT) and (self.xOffset % 50 == 0)):
+            if(self.yOffset < 0):
+                self.gridY -= 1
+            elif(self.yOffset > 0):
+                self.gridY += 1
+            self.yOffset = 0;
+            if(self.xOffset < 0):
+                self.gridX -= 1
+            elif(self.xOffset > 0):
+                self.gridX += 1
+            self.xOffset = 0;
             self.moving = False;
 
 
@@ -26,12 +36,14 @@ class MovableCharacter:
         name = self.directional_sprites[direction]
         self.sprite = self.load_function(name)
 
-    def __init__(self, name, load_function, directional_sprites,x=200,y=400, gold=0):
+    def __init__(self, name, load_function, directional_sprites,x=12,y=12, gold=0):
         self.moving = False
         self.load_function = load_function
         self.directional_sprites = directional_sprites
-        self.x = x
-        self.y = y
+        self.gridX = x
+        self.gridY = y
+        self.xOffset = 0
+        self.yOffset = 0
         self.name = name
         self.gold = gold
         self.current_direction = Direction.UP
