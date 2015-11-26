@@ -4,8 +4,8 @@ from pygame.locals import *
 
 class Map:
     def __init__(self):
-        self.wall = Tile(pygame.image.load("res/map/wall.png"), True)
-        self.floor = Tile(pygame.image.load("res/map/floor.png"))
+        self.wall = Tile(pygame.image.load("res/map/wall.png").convert(), True)
+        self.floor = Tile(pygame.image.load("res/map/floor.png").convert())
         self.map = []
         for y in range(0, 25):
             row = []

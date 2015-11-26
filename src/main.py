@@ -79,7 +79,7 @@ class GolemsGame:
             
             self.doKeys(self.main_player)
 
-            pygame.display.flip()
+            pygame.display.update()
             self.clock.tick(FPS)
      
     # Called when loading a saved state from the Journal
