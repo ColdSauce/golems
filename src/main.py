@@ -15,7 +15,6 @@ class GolemsGame:
         self.main_player = MovableCharacter("P1",pygame.image.load, ["res/main_player/up.png", "res/main_player/right.png", "res/main_player/down.png", "res/main_player/left.png"])
         self.main_player.change_direction(self.main_player.current_direction, override_opt = True)
         self.movable_characters.append(self.main_player)
-        self.map = Map()
 
     def doKeys(self,char):
         if char.moving: # Player's currently moving, ignore keypresses
@@ -39,6 +38,7 @@ class GolemsGame:
     def game_loop(self):
         FPS = 30
         surface = pygame.display.get_surface()
+        self.map = Map()
 
         while True:
             surface.fill((0,0,0))
