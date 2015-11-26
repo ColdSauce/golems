@@ -2,5 +2,5 @@
 name = Golems
 bundle_id = edu.rit.Golems
 exec = sugar-activity Golems.GolemsActivity
-icon = activity-generic
+icon = golemsIcon
 activity_version = 1

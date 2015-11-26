@@ -36,7 +36,7 @@ class MovableCharacter:
         name = self.directional_sprites[direction]
         self.sprite = self.load_function(name)
 
-    def __init__(self, name, load_function, directional_sprites,x=12,y=12, gold=0):
+    def __init__(self, name, load_function, directional_sprites,x=0,y=0, gold=0):
         self.moving = False
         self.load_function = load_function
         self.directional_sprites = directional_sprites
@@ -67,7 +67,7 @@ class Element:
     WATER   = 3
 
 class GenericBot:
-    def __init__(self, name, image, speed=0, health=100,mana=100,element=Element.FIRE,spell_xp=dict(),list_of_spells=[]):
+    def __init__(self, name, sprite, speed=0, health=100,mana=100,element=Element.NEUTRAL,spell_xp=dict(),list_of_spells=[]):
         self.name = name
         self.sprite = sprite 
         self.speed = speed
