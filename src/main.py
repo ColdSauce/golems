@@ -37,7 +37,7 @@ class BattleScene(Scene):
         self.char2 = char2
 
     def render(self,surface):
-        pass
+        surface.fill((30,30,100))
 
     def update(self):
         pass
@@ -106,7 +106,7 @@ class InteractiveScene(Scene):
                 return character
         return None
     def collided_with_another_character(self, char1, char2):
-        self.go_to(BattleScene(char1,char2))
+        self.manager.go_to(BattleScene(char1,char2))
 
     def move_up(self,character):
         character.change_direction(Direction.UP)
