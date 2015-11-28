@@ -22,7 +22,7 @@ class Scene():
     def __init__(self):
         pass
 
-    def render(self, screen):
+    def render(self, surface):
         raise NotImplementedError
 
     def update(self):
@@ -30,6 +30,21 @@ class Scene():
 
     def handle_events(self, events):
         raise NotImplementedError
+
+class BattleScene(Scene):
+    def __init__(self, char1, char2):
+        self.char1 = char1
+        self.char2 = char2
+
+    def render(self,surface):
+        pass
+
+    def update(self):
+        pass
+
+    def handle_events(self, events):
+        pass
+
 
 class InteractiveScene(Scene):
     def __init__(self):
@@ -69,21 +84,14 @@ class InteractiveScene(Scene):
         # Use change_direction instead of just changing the
         # variable since it also changes the sprite image
         if isUpPressed(keys):
-            char.change_direction(Direction.UP)
-            if(not self.map.isSolid(char.gridX, char.gridY - 1)):
-                char.moving = True
+            self.move_up(char)
+            return
         elif isRightPressed(keys):
-            char.change_direction(Direction.RIGHT)
-            if(not self.map.isSolid(char.gridX + 1, char.gridY)):
-                char.moving = True
+            self.move_right(char)
         elif isDownPressed(keys):
-            char.change_direction(Direction.DOWN)
-            if(not self.map.isSolid(char.gridX, char.gridY + 1)):
-                char.moving = True
+            self.move_down(char)
         elif isLeftPressed(keys):
-            char.change_direction(Direction.LEFT)
-            if(not self.map.isSolid(char.gridX - 1, char.gridY)):
-                char.moving = True
+            self.move_left(char)
 
     def render(self, surface):
         surface.fill((0,0,0))
@@ -92,6 +100,53 @@ class InteractiveScene(Scene):
         height = self.height
         for character in self.movable_characters:
             surface.blit(character.sprite, ((width / 2) - 25 - (self.main_player.gridX * 50 + self.main_player.xOffset) + (character.gridX * 50 + character.xOffset), (height / 2) - 25 - (self.main_player.gridY * 50 + self.main_player.yOffset) + (character.gridY * 50 + character.yOffset)))
+    def what_character_on_tile(self,x,y):
+        for character in self.movable_characters:
+            if character.gridX == x and character.gridY == y:
+                return character
+        return None
+    def collided_with_another_character(self, char1, char2):
+        self.go_to(BattleScene(char1,char2))
+
+    def move_up(self,character):
+        character.change_direction(Direction.UP)
+        character_at_loc =  self.what_character_on_tile(character.gridX, character.gridY - 1) 
+        if character_at_loc is not None:
+            if character_at_loc is not character:
+                self.collided_with_another_character(character,character_at_loc)
+                return
+        if(not self.map.isSolid(character.gridX, character.gridY - 1)):
+            character.moving = True
+
+    def move_down(self,character):
+        character.change_direction(Direction.DOWN)
+        character_at_loc =  self.what_character_on_tile(character.gridX, character.gridY + 1) 
+        if character_at_loc is not None:
+            if character_at_loc is not character:
+                self.collided_with_another_character(character,character_at_loc)
+                return
+        if(not self.map.isSolid(character.gridX, character.gridY + 1)):
+            character.moving = True
+
+    def move_left(self,character):
+        character.change_direction(Direction.LEFT)
+        character_at_loc =  self.what_character_on_tile(character.gridX - 1, character.gridY) 
+        if character_at_loc is not None:
+            if character_at_loc is not character:
+                self.collided_with_another_character(character,character_at_loc)
+                return
+        if(not self.map.isSolid(character.gridX - 1, character.gridY)):
+            character.moving = True
+
+    def move_right(self,character):
+        character.change_direction(Direction.RIGHT)
+        character_at_loc =  self.what_character_on_tile(character.gridX + 1, character.gridY) 
+        if character_at_loc is not None:
+            if character_at_loc is not character:
+                self.collided_with_another_character(character,character_at_loc)
+                return
+        if(not self.map.isSolid(character.gridX + 1, character.gridY)):
+            character.moving = True
 
     def update(self):
         for character in self.movable_characters:
@@ -101,24 +156,15 @@ class InteractiveScene(Scene):
                     if not character.moving:
                         keys = pygame.key.get_pressed()
                         if isUpPressed(keys):
-                            character.change_direction(Direction.UP)
-                            if(not self.map.isSolid(character.gridX, character.gridY - 1)):
-                                character.moving = True
+                            self.move_up(character)
                         elif isDownPressed(keys):
-                            character.change_direction(Direction.DOWN)
-                            if(not self.map.isSolid(character.gridX, character.gridY + 1)):
-                                character.moving = True
+                            self.move_down(character)
                         elif isLeftPressed(keys):
-                            character.change_direction(Direction.LEFT)
-                            if(not self.map.isSolid(character.gridX - 1, character.gridY)):
-                                character.moving = True
+                            self.move_left(character)
                         elif isRightPressed(keys):
-                            character.change_direction(Direction.RIGHT)
-                            if(not self.map.isSolid(character.gridX + 1, character.gridY)):
-                                character.moving = True
+                            self.move_right(character)
                 else:
                     character.move()
-
         self.doKeys(self.main_player)
 
     def handle_events(self, events):
@@ -174,7 +220,6 @@ class GolemsGame:
 
         manager = SceneManager()
         while True:
-
             if(isLinux):
                 while Gtk.events_pending():
                     Gtk.main_iteration()
