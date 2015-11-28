@@ -1,3 +1,5 @@
+import pygame
+
 class Tile:
     def __init__(self, image, solid = False):
         self.sprite = image
@@ -85,3 +87,30 @@ class Spells:
         self.attack_power = attack_power
         self.multiplier = multiplier
         self.accuracy = accuracy
+
+class CodeBlock:
+    def __init__(self):
+        self.font = pygame.font.SysFont(None, 20)
+    # Renders the Block to the screen.  Should return the total height of the block.
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        raise NotImplementedError
+    # Executes the Block, taking into consideration whether or not this is a calc-mana-cost-only dry run.  Should return mana spent in total.
+    def execute(self, dryRun = False):
+        raise NotImplementedError
+
+class CommentBlock(CodeBlock):
+    def __init__(self):
+        super(CommentBlock, self).__init__()
+        self.comment = "";
+        self.cwidth, self.cheight = self.font.size("# ")
+        self.fontRender = self.font.render("# ", 0, (0, 0, 0), (255, 255, 0))
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        pygame.draw.rect(surface, (255, 255, 0), (xOffset. yOffset, self.fwidth + 16, self.fheight + 8))
+        surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        return self.fheight + 8
+    def execute(self, dryRun = False):
+        return 0
+    def setComment(self, newComment):
+        self.comment = newComment
+        self.cwidth, self.cheight = self.font.size("# " + self.comment)
+        self.fontRender = self.font.render("# ", 0, (0, 0, 0), (255, 255, 0))
