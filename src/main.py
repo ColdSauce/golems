@@ -13,6 +13,7 @@ class GolemsGame:
         self.clock = pygame.time.Clock()
         self.movable_characters = []
         self.main_player = MovableCharacter("P1",pygame.image.load, ["res/main_player/up.png", "res/main_player/right.png", "res/main_player/down.png", "res/main_player/left.png"], 1, 1)
+
         self.main_player.change_direction(self.main_player.current_direction, override_opt = True)
         self.movable_characters.append(self.main_player)
 
@@ -99,11 +100,11 @@ class GolemsGame:
         stub = 0
 
 def isUpPressed(keys):
-    return keys[pygame.K_UP] or keys[pygame.K_KP8]
+    return keys[pygame.K_UP] or keys[pygame.K_KP8] or keys[pygame.K_k]
 def isDownPressed(keys):
-    return keys[pygame.K_DOWN] or keys[pygame.K_KP2]
+    return keys[pygame.K_DOWN] or keys[pygame.K_KP2] or keys[pygame.K_j]
 def isLeftPressed(keys):
-    return keys[pygame.K_LEFT] or keys[pygame.K_KP4]
+    return keys[pygame.K_LEFT] or keys[pygame.K_KP4] or keys[pygame.K_h]
 def isRightPressed(keys):
-    return keys[pygame.K_RIGHT] or keys[pygame.K_KP6]
+    return keys[pygame.K_RIGHT] or keys[pygame.K_KP6] or keys[pygame.K_l]
 
