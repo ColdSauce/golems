@@ -52,7 +52,8 @@ class MainPlayer(MovableCharacter):
     pass
 
 class EnemyPlayer(MovableCharacter):
-    pass
+    def move(self,speed = 2):
+        pass # for now.. but implement ai
 
 class Direction:
     UP    = 0
