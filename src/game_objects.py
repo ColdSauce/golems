@@ -65,9 +65,9 @@ class Direction:
 
 class Element:
     NEUTRAL = 0
-    FIRE    = 1
-    NATURE  = 2
-    WATER   = 3
+    IGNIS   = 1
+    NATURA  = 2
+    AQUA    = 3
 
 class GenericBot:
     def __init__(self, name, sprite, speed=0, health=100,mana=100,element=Element.NEUTRAL,spell_xp=dict(),list_of_spells=[]):
@@ -94,35 +94,47 @@ class CodeBlock:
     # Renders the Block to the screen.  Should return the total height of the block.
     def render(self, surface, xOffset = 0, yOffset = 0):
         raise NotImplementedError
-    # Executes the Block, taking into consideration whether or not this is a calc-mana-cost-only dry run.  Should return mana spent in total.
+    # Executes the Block, taking into consideration whether or not this is a calc-mana-cost-only dry run.  Should return mana spent in total, or a tuple of (mana total, flag saying 'had hit an End Turn block').
     def execute(self, ownerBot, opponentBot, dryRun = False):
         raise NotImplementedError
 
+# Comment Block.  Does nothing, handy for in-code notes.
 class CommentBlock(CodeBlock):
     def __init__(self):
         super(CommentBlock, self).__init__()
         self.comment = "";
         self.cwidth, self.cheight = self.font.size("# ")
-        self.fontRender = self.font.render("# ", 0, (0, 0, 0), (255, 255, 0))
+        self.fontRender = self.font.render("# ", 0, (0, 0, 0), (255, 255, 128))
     def render(self, surface, xOffset = 0, yOffset = 0):
-        pygame.draw.rect(surface, (255, 255, 0), (xOffset. yOffset, self.fwidth + 16, self.fheight + 8))
+        pygame.draw.rect(surface, (255, 255, 128), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
-        return self.fheight + 8
+        return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
-        return 0
+        return 0 # Comment blocks do nothing
     def setComment(self, newComment):
         self.comment = newComment
         self.cwidth, self.cheight = self.font.size("# " + self.comment)
-        self.fontRender = self.font.render("# ", 0, (0, 0, 0), (255, 255, 0))
+        self.fontRender = self.font.render("# " + self.comment, 0, (0, 0, 0), (255, 255, 128))
 
+# Say Block.  Causes the Golem to say a bit of text.
 class SayBlock(CodeBlock):
     def __init__(self):
-        pass
+        super(SayBlock, self).__init__()
+        self.message = "";
+        self.cwidth, self.cheight = self.font.size("Say \"\"")
+        self.fontRender = self.font.render("Say \"\"", 0, (0, 0, 0), (205, 205, 205))
     def render(self, surface, xOffset = 0, yOffset = 0):
-        return 0
+        pygame.draw.rect(surface, (205, 205, 205), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+        surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
+    def setMessage(self, newMessage):
+        self.message = newMessage
+        self.cwidth, self.cheight = self.font.size("Say \"" + self.message + "\"")
+        self.fontRender = self.font.render("Say \"" + self.message + "\"", 0, (0, 0, 0), (205, 205, 205))
 
+# While Block.  Performs a task while a condition remains true.
 class WhileBlock(CodeBlock):
     def __init__(self):
         pass
@@ -131,38 +143,16 @@ class WhileBlock(CodeBlock):
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
 
-class IfManaBlock(CodeBlock):
-    def __init__(self):
-        pass
-    def render(self, surface, xOffset = 0, yOffset = 0):
-        return 0
-    def execute(self, ownerBot, opponentBot, dryRun = False):
-        return 0
+# For Block.  Performs a task on each Golem being faced.  Do not implement, only doing 1v1 battles atm.
+#class ForBlock(CodeBlock):
+#    def __init__(self):
+#        pass
+#    def render(self, surface, xOffset = 0, yOffset = 0):
+#        return 0
+#    def execute(self, ownerBot, opponentBot, dryRun = False):
+#        return 0
 
-class IfOwnHealthBlock(CodeBlock):
-    def __init__(self):
-        pass
-    def render(self, surface, xOffset = 0, yOffset = 0):
-        return 0
-    def execute(self, ownerBot, opponentBot, dryRun = False):
-        return 0
-
-class HealBlock(CodeBlock):
-    def __init__(self):
-        pass
-    def render(self, surface, xOffset = 0, yOffset = 0):
-        return 0
-    def execute(self, ownerBot, opponentBot, dryRun = False):
-        return 0
-
-class ForBlock(CodeBlock):
-    def __init__(self):
-        pass
-    def render(self, surface, xOffset = 0, yOffset = 0):
-        return 0
-    def execute(self, ownerBot, opponentBot, dryRun = False):
-        return 0
-
+# End Turn Block.  Immediately stops the Golem's execution, and ends their turn.
 class EndTurnBlock(CodeBlock):
     def __init__(self):
         pass
@@ -171,6 +161,80 @@ class EndTurnBlock(CodeBlock):
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
 
+# Branch Block, Mana.  Allows for some decision making based on how much Mana a Golem has in reserve.
+class IfManaBlock(CodeBlock):
+    def __init__(self):
+        super(IfManaBlock, self).__init__()
+        self.mthresh = 0
+        self.trueBlocks = []
+        self.falseBlocks = []
+        self.cwidth, self.cheight = self.font.size("If I have more than 9999 Mana")
+        self.fontRender = self.font.render("If I have more than 0 Mana", 0, (0, 0, 0), (128, 205, 255))
+        self.elseRender = self.font.render("Otherwise", 0, (0, 0, 0), (128, 205, 255))
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+        surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        heightsum = self.cheight + 8
+        for i in range(0, size(trueBlocks)):
+            heightsum += trueBlocks[i].render(surface, xOffset + 8, yOffset + heightsum)
+        pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + heightsum, self.cwidth + 16, self.cheight + 8))
+        surface.blit(self.elseRender, (xOffset + 4, yOffset + heightsum + 4))
+        heightsum += self.cheight + 8
+        for i in range(0, size(elseBlocks)):
+            heightsum += falseBlocks[i].render(surface, xOffset + 8, yOffset + heightsum)
+        pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + heightsum, self.cwidth + 16, self.cheight + 8))
+        pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset, 6, heightsum))
+        return heightsum + self.cheight + 8
+    def execute(self, ownerBot, opponentBot, dryRun = False):
+        return 0
+    def setThresh(self, newThresh):
+        self.mthresh = newThresh
+        self.fontRender = self.font.render("If I have more than " + str(self.mthresh) + " Mana", 0, (0, 0, 0), (128, 205, 255))
+
+# Branch Block, Health.  Allows for some decision making based on how much Health a Golem has.
+class IfOwnHealthBlock(CodeBlock):
+    def __init__(self):
+        super(IfOwnHealthBlock, self).__init__()
+        self.hthresh = 0
+        self.trueBlocks = []
+        self.falseBlocks = []
+        self.cwidth, self.cheight = self.font.size("If I have less than 9999 Health")
+        self.fontRender = self.font.render("If I have less than 0 Health", 0, (0, 0, 0), (255, 200, 200))
+        self.elseRender = self.font.render("Otherwise", 0, (0, 0, 0), (255, 200, 200))
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+        surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        heightsum = self.cheight + 8
+        for i in range(0, size(trueBlocks)):
+            heightsum += trueBlocks[i].render(surface, xOffset + 8, yOffset + heightsum)
+        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + heightsum, self.cwidth + 16, self.cheight + 8))
+        surface.blit(self.elseRender, (xOffset + 4, yOffset + heightsum + 4))
+        heightsum += self.cheight + 8
+        for i in range(0, size(elseBlocks)):
+            heightsum += falseBlocks[i].render(surface, xOffset + 8, yOffset + heightsum)
+        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + heightsum, self.cwidth + 16, self.cheight + 8))
+        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset, 6, heightsum))
+        return heightsum + self.cheight + 8
+    def execute(self, ownerBot, opponentBot, dryRun = False):
+        return 0
+    def setThresh(self, newThresh):
+        self.hthresh = newThresh
+        self.fontRender = self.font.render("If I have less than " + str(self.hthresh) + " Health", 0, (0, 0, 0), (255, 200, 200))
+
+# Heal Block.  Causes the Golem to cast the Heal spell, restoring a certain amount of health not controlled by the program.
+class HealBlock(CodeBlock):
+    def __init__(self):
+        super(SayBlock, self).__init__()
+        self.cwidth, self.cheight = self.font.size("Cast Heal on myself")
+        self.fontRender = self.font.render("Cast Heal on myself", 0, (0, 0, 0), (255, 200, 200))
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        pygame.draw.rect(surface, (205, 205, 205), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+        surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        return self.cheight + 8
+    def execute(self, ownerBot, opponentBot, dryRun = False):
+        return 0
+
+# Fireball Block.  Causes the Golem to cast Fireball, dealing ignis damage on an opponent.
 class FireballBlock(CodeBlock):
     def __init__(self):
         pass
@@ -179,6 +243,7 @@ class FireballBlock(CodeBlock):
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
 
+# Moss Leech Block.  Causes the Golem to cast Moss Leech, dealing natura damage on an opponent.
 class MossLeechBlock(CodeBlock):
     def __init__(self):
         pass
@@ -187,6 +252,7 @@ class MossLeechBlock(CodeBlock):
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
 
+# Douse Block.  Causes the Golem to cast Douse, dealing aqua damage on an opponent.
 class DouseBlock(CodeBlock):
     def __init__(self):
         pass
