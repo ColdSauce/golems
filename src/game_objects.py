@@ -95,7 +95,7 @@ class CodeBlock:
     def render(self, surface, xOffset = 0, yOffset = 0):
         raise NotImplementedError
     # Executes the Block, taking into consideration whether or not this is a calc-mana-cost-only dry run.  Should return mana spent in total.
-    def execute(self, dryRun = False):
+    def execute(self, ownerBot, opponentBot, dryRun = False):
         raise NotImplementedError
 
 class CommentBlock(CodeBlock):
@@ -108,9 +108,90 @@ class CommentBlock(CodeBlock):
         pygame.draw.rect(surface, (255, 255, 0), (xOffset. yOffset, self.fwidth + 16, self.fheight + 8))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
         return self.fheight + 8
-    def execute(self, dryRun = False):
+    def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
     def setComment(self, newComment):
         self.comment = newComment
         self.cwidth, self.cheight = self.font.size("# " + self.comment)
         self.fontRender = self.font.render("# ", 0, (0, 0, 0), (255, 255, 0))
+
+class SayBlock(CodeBlock):
+    def __init__(self):
+        pass
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        return 0
+    def execute(self, ownerBot, opponentBot, dryRun = False):
+        return 0
+
+class WhileBlock(CodeBlock):
+    def __init__(self):
+        pass
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        return 0
+    def execute(self, ownerBot, opponentBot, dryRun = False):
+        return 0
+
+class IfManaBlock(CodeBlock):
+    def __init__(self):
+        pass
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        return 0
+    def execute(self, ownerBot, opponentBot, dryRun = False):
+        return 0
+
+class IfOwnHealthBlock(CodeBlock):
+    def __init__(self):
+        pass
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        return 0
+    def execute(self, ownerBot, opponentBot, dryRun = False):
+        return 0
+
+class HealBlock(CodeBlock):
+    def __init__(self):
+        pass
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        return 0
+    def execute(self, ownerBot, opponentBot, dryRun = False):
+        return 0
+
+class ForBlock(CodeBlock):
+    def __init__(self):
+        pass
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        return 0
+    def execute(self, ownerBot, opponentBot, dryRun = False):
+        return 0
+
+class EndTurnBlock(CodeBlock):
+    def __init__(self):
+        pass
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        return 0
+    def execute(self, ownerBot, opponentBot, dryRun = False):
+        return 0
+
+class FireballBlock(CodeBlock):
+    def __init__(self):
+        pass
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        return 0
+    def execute(self, ownerBot, opponentBot, dryRun = False):
+        return 0
+
+class MossLeechBlock(CodeBlock):
+    def __init__(self):
+        pass
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        return 0
+    def execute(self, ownerBot, opponentBot, dryRun = False):
+        return 0
+
+class DouseBlock(CodeBlock):
+    def __init__(self):
+        pass
+    def render(self, surface, xOffset = 0, yOffset = 0):
+        return 0
+    def execute(self, ownerBot, opponentBot, dryRun = False):
+        return 0
+
