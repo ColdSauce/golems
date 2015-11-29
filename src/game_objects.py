@@ -108,9 +108,9 @@ class CommentBlock(CodeBlock):
         super(CommentBlock, self).__init__()
         self.comment = "";
         self.cwidth, self.cheight = self.font.size("# ")
-        self.fontRender = self.font.render("# ", 0, (0, 0, 0), (255, 255, 128))
+        self.fontRender = self.font.render("# ", 0, (0, 0, 0), (190, 255, 190))
     def render(self, surface, xOffset = 0, yOffset = 0):
-        pygame.draw.rect(surface, (255, 255, 128), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+        pygame.draw.rect(surface, (190, 255, 190), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
@@ -118,7 +118,7 @@ class CommentBlock(CodeBlock):
     def setComment(self, newComment):
         self.comment = newComment
         self.cwidth, self.cheight = self.font.size("# " + self.comment)
-        self.fontRender = self.font.render("# " + self.comment, 0, (0, 0, 0), (255, 255, 128))
+        self.fontRender = self.font.render("# " + self.comment, 0, (0, 0, 0), (190, 255, 190))
 
 # Say Block.  Causes the Golem to say a bit of text.
 class SayBlock(CodeBlock):
@@ -141,9 +141,19 @@ class SayBlock(CodeBlock):
 # While Block.  Performs a task while a condition remains true.
 class WhileBlock(CodeBlock):
     def __init__(self):
-        pass
+        super(WhileBlock, self).__init__()
+        self.blocks = []
+        _, self.cheight = self.font.size("WAAA")
+        self.fontRender = self.font.render("Do Forever", 0, (0, 0, 0), (255, 255, 190))
     def render(self, surface, xOffset = 0, yOffset = 0):
-        return 0
+        pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset, 128, self.cheight + 8))
+        surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        heightsum = self.cheight + 8
+        for i in range(0, size(blocks)):
+            heightsum += blocks[i].render(surface, xOffset + 8, yOffset + heightsum)
+        pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset + heightsum, 128, self.cheight + 8))
+        pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset, 6, heightsum))
+        return heightsum + self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
 
@@ -159,11 +169,15 @@ class WhileBlock(CodeBlock):
 # End Turn Block.  Immediately stops the Golem's execution, and ends their turn.
 class EndTurnBlock(CodeBlock):
     def __init__(self):
-        pass
+        super(EndTurnBlock, self).__init__()
+        self.cwidth, self.cheight = self.font.size("End my Turn")
+        self.fontRender = self.font.render("End my Turn", 0, (0, 0, 0), (255, 64, 64))
     def render(self, surface, xOffset = 0, yOffset = 0):
-        return 0
+        pygame.draw.rect(surface, (255, 64, 64), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+        surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
-        return 0
+        return (0, True)
 
 # Branch Block, Mana.  Allows for some decision making based on how much Mana a Golem has in reserve.
 class IfManaBlock(CodeBlock):
@@ -228,11 +242,11 @@ class IfOwnHealthBlock(CodeBlock):
 # Heal Block.  Causes the Golem to cast the Heal spell, restoring a certain amount of health not controlled by the program.
 class HealBlock(CodeBlock):
     def __init__(self):
-        super(SayBlock, self).__init__()
+        super(HealBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("Cast Heal on myself")
         self.fontRender = self.font.render("Cast Heal on myself", 0, (0, 0, 0), (255, 200, 200))
     def render(self, surface, xOffset = 0, yOffset = 0):
-        pygame.draw.rect(surface, (205, 205, 205), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
@@ -241,27 +255,39 @@ class HealBlock(CodeBlock):
 # Fireball Block.  Causes the Golem to cast Fireball, dealing ignis damage on an opponent.
 class FireballBlock(CodeBlock):
     def __init__(self):
-        pass
+        super(FireballBlock, self).__init__()
+        self.cwidth, self.cheight = self.font.size("Cast Fireball at the enemy")
+        self.fontRender = self.font.render("Cast Fireball at the enemy", 0, (255, 255, 255), (128, 0, 0))
     def render(self, surface, xOffset = 0, yOffset = 0):
-        return 0
+        pygame.draw.rect(surface, (128, 0, 0), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+        surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
 
 # Moss Leech Block.  Causes the Golem to cast Moss Leech, dealing natura damage on an opponent.
 class MossLeechBlock(CodeBlock):
     def __init__(self):
-        pass
+        super(MossLeechBlock, self).__init__()
+        self.cwidth, self.cheight = self.font.size("Cast Moss Leech at the enemy")
+        self.fontRender = self.font.render("Cast Moss Leech at the enemy", 0, (255, 255, 255), (0, 128, 0))
     def render(self, surface, xOffset = 0, yOffset = 0):
-        return 0
+        pygame.draw.rect(surface, (0, 128, 0), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+        surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
 
 # Douse Block.  Causes the Golem to cast Douse, dealing aqua damage on an opponent.
 class DouseBlock(CodeBlock):
     def __init__(self):
-        pass
+        super(DouseBlock, self).__init__()
+        self.cwidth, self.cheight = self.font.size("Cast Douse at the enemy")
+        self.fontRender = self.font.render("Cast Douse at the enemy", 0, (255, 255, 255), (0, 0, 255))
     def render(self, surface, xOffset = 0, yOffset = 0):
-        return 0
+        pygame.draw.rect(surface, (0, 0, 255), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+        surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
 
