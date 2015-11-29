@@ -268,9 +268,9 @@ def isLeftPressed(keys):
     return keys[pygame.K_LEFT] or keys[pygame.K_KP4] or keys[pygame.K_h]
 def isRightPressed(keys):
     return keys[pygame.K_RIGHT] or keys[pygame.K_KP6] or keys[pygame.K_l]
-def isOkayPressed(keys):
+def isOkayPressed(keys): # Enter Key or Check Gamepad Button
     return keys[pygame.K_ENTER] or keys[pygame.K_KP1]
-def isBackPressed(keys):
+def isBackPressed(keys): # Backspace Key or X Gamepad Button
     return keys[pygame.K_BACKSPACE] or keys[pygame.K_KP3]
-def isMenuPressed(keys):
+def isMenuPressed(keys): # Tab Key or Square GAmepad Button
     return keys[pygame.K_TAB] or keys[pygame.K_KP7]
