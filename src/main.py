@@ -32,6 +32,26 @@ class Scene():
         raise NotImplementedError
 
 class BattleScene(Scene):
+    class UIRect():
+        def __init__(self,x,y,width,height,char,bot_id):
+            self.x = x
+            self.y = y
+            self.width = width
+            self.height = height
+            self.char = char
+            self.bot_id = bot_id
+            self.rect_color = (255,255,255)
+            self.rect = (x,y,width,height)
+
+
+        def render(self, surface):
+            pygame.draw.rect(surface, self.rect_color, self.rect,3)
+
+
+            
+
+            
+
     class SpellRect():
 
         def __init__(self,x,y,width,height,char, bot_id):
@@ -59,8 +79,8 @@ class BattleScene(Scene):
         height = SCREEN_HEIGHT/2
         self.char1 = char1
         self.char2 = char2
-        self.spell_rect1 = self.SpellRect(200 + width, 100, width,height,char1,0)
-        self.spell_rect2 = self.SpellRect(100,100,width,height,char2, 0)
+        self.spell_rect1 = self.SpellRect(100,100,width,height,char1, 0)
+        self.spell_rect2 = self.SpellRect(200 + width, 100, width,height,char2,0)
         
     def render(self,surface):
         surface.fill((0,0,0))
