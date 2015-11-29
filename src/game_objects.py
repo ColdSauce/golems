@@ -38,10 +38,9 @@ class MovableCharacter:
         name = self.directional_sprites[direction]
         self.sprite = self.load_function(name)
 
-    def __init__(self, name, load_function, directional_sprites,x=0,y=0, gold=0):
+    def __init__(self, name, load_function,list_of_bots, directional_sprites,x=0,y=0, gold=0):
         # for now this is just hard coded
         # placeholder sprite's justgonna be one of the directional sprites
-        self.bot = GenericBot(name + "'s bot", directional_sprites[0])
         self.moving = False
         self.load_function = load_function
         self.directional_sprites = directional_sprites
@@ -52,6 +51,7 @@ class MovableCharacter:
         self.name = name
         self.gold = gold
         self.current_direction = Direction.UP
+        self.list_of_bots = list_of_bots
         
 class MainPlayer(MovableCharacter):
     pass
@@ -73,7 +73,8 @@ class Element:
     AQUA    = 3
 
 class GenericBot:
-    def __init__(self, name, sprite, speed=0, health=100,mana=100,element=Element.NEUTRAL,spell_xp=dict(),list_of_spells=[]):
+    def __init__(self, name, sprite, speed=1, health=100,mana=100,element=Element.NEUTRAL,spell_xp=dict(),list_of_spells=[],queue_of_code_blocks = list()):
+        self.queue_of_code_blocks = queue_of_code_blocks
         self.name = name
         self.sprite = sprite 
         self.speed = speed
@@ -91,7 +92,7 @@ class Spells:
         self.multiplier = multiplier
         self.accuracy = accuracy
 
-class CodeBlock:
+class CodeBlock(object):
     def __init__(self):
         self.font = pygame.font.SysFont(None, 20)
     # Renders the Block to the screen.  Should return the total height of the block.

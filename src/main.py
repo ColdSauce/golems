@@ -33,10 +33,22 @@ class Scene():
 
 class BattleScene(Scene):
     class SpellRect():
-        def __init__(self,x,y,width,height):
+        def __init__(self,x,y,width,height,char, bot_id):
+            # bot_id is the index of the bot that you want to get spells from is
+            self.bot_id = bot_id
+            self.x = x
+            self.y = y
+            self.height = height
             self.rect = (x, y, width, height)
             self.rect_color = (255,255,255)
-
+            self.char = char
+        def render(self,surface):
+            pygame.draw.rect(surface, self.rect_color, self.rect, 3)
+            # This is really ugly code but it's late at night and I wanna go to sleep so I'll fix it tomorrow :p
+            for index, code_block in enumerate(self.char.list_of_bots[self.bot_id].queue_of_code_blocks):
+                # Ideally, this should be the height of the codeblock but that's not an attribute of codeblock. I think it should be..
+                y_offset = index * 64
+                code_block.render(surface, xOffset = self.x, yOffset = self.y + y_offset)
          
     def __init__(self, char1, char2):
         global SCREEN_WIDTH
@@ -45,12 +57,12 @@ class BattleScene(Scene):
         height = SCREEN_HEIGHT/2
         self.char1 = char1
         self.char2 = char2
+        self.spell_rect2 = self.SpellRect(100,100,width,height,char2, 0)
         
         
     def render(self,surface):
         surface.fill((0,0,0))
-        pygame.draw.rect(surface, self.rect_color, self.first_char_rect, 3)
-        pygame.draw.rect(surface, self.rect_color, self.second_char_rect, 3)
+        self.spell_rect2.render(surface)
 
     def update(self):
         pass
@@ -69,14 +81,20 @@ class InteractiveScene(Scene):
         self.map = Map(30, 15)
         self.main_player = MainPlayer(name = "P1",
                                       load_function = pygame.image.load,
+                                      # The sprite for the bot will just be the up picture for placeholder.."
+                                      list_of_bots = [GenericBot("Stefan's Bot", "res/main_player/up.png")],
                                       directional_sprites = ["res/main_player/up.png", 
                                                              "res/main_player/right.png", 
                                                              "res/main_player/down.png", 
                                                              "res/main_player/left.png"],
                                       x = 1, 
                                       y = 1)
+        some_test_list = []
+        for x in range(0,10):
+            some_test_list.append(SayBlock())
         self.enemy_player = EnemyPlayer(name = "Example AI",
                                         load_function = pygame.image.load,
+                                        list_of_bots = [GenericBot("enemy's Bot", "res/main_player/up.png", queue_of_code_blocks = some_test_list)],
                                         directional_sprites = ["res/main_player/up.png", 
                                                              "res/main_player/right.png", 
                                                              "res/main_player/down.png", 
@@ -268,9 +286,9 @@ def isLeftPressed(keys):
     return keys[pygame.K_LEFT] or keys[pygame.K_KP4] or keys[pygame.K_h]
 def isRightPressed(keys):
     return keys[pygame.K_RIGHT] or keys[pygame.K_KP6] or keys[pygame.K_l]
-def isOkayPressed(keys): # Enter Key or Check Gamepad Button
+def isOkayPressed(keys):
     return keys[pygame.K_ENTER] or keys[pygame.K_KP1]
-def isBackPressed(keys): # Backspace Key or X Gamepad Button
+def isBackPressed(keys):
     return keys[pygame.K_BACKSPACE] or keys[pygame.K_KP3]
-def isMenuPressed(keys): # Tab Key or Square GAmepad Button
+def isMenuPressed(keys):
     return keys[pygame.K_TAB] or keys[pygame.K_KP7]
