@@ -33,6 +33,7 @@ class Scene():
 
 class BattleScene(Scene):
     class SpellRect():
+
         def __init__(self,x,y,width,height,char, bot_id):
             # bot_id is the index of the bot that you want to get spells from is
             self.bot_id = bot_id
@@ -42,6 +43,7 @@ class BattleScene(Scene):
             self.rect = (x, y, width, height)
             self.rect_color = (255,255,255)
             self.char = char
+
         def render(self,surface):
             pygame.draw.rect(surface, self.rect_color, self.rect, 3)
             # This is really ugly code but it's late at night and I wanna go to sleep so I'll fix it tomorrow :p
@@ -49,7 +51,7 @@ class BattleScene(Scene):
                 # Ideally, this should be the height of the codeblock but that's not an attribute of codeblock. I think it should be..
                 y_offset = index * 64
                 code_block.render(surface, xOffset = self.x, yOffset = self.y + y_offset)
-         
+ 
     def __init__(self, char1, char2):
         global SCREEN_WIDTH
         global SCREEN_HEIGHT
@@ -57,11 +59,12 @@ class BattleScene(Scene):
         height = SCREEN_HEIGHT/2
         self.char1 = char1
         self.char2 = char2
+        self.spell_rect1 = self.SpellRect(200 + width, 100, width,height,char1,0)
         self.spell_rect2 = self.SpellRect(100,100,width,height,char2, 0)
-        
         
     def render(self,surface):
         surface.fill((0,0,0))
+        self.spell_rect1.render(surface)
         self.spell_rect2.render(surface)
 
     def update(self):
@@ -79,10 +82,13 @@ class InteractiveScene(Scene):
         self.width = SCREEN_WIDTH
         self.movable_characters = []
         self.map = Map(30, 15)
+        some_test_list = []
+        for x in range(0,10):
+            some_test_list.append(WhileBlock())
         self.main_player = MainPlayer(name = "P1",
                                       load_function = pygame.image.load,
                                       # The sprite for the bot will just be the up picture for placeholder.."
-                                      list_of_bots = [GenericBot("Stefan's Bot", "res/main_player/up.png")],
+                                      list_of_bots = [GenericBot("Stefan's Bot", "res/main_player/up.png", queue_of_code_blocks = some_test_list)],
                                       directional_sprites = ["res/main_player/up.png", 
                                                              "res/main_player/right.png", 
                                                              "res/main_player/down.png", 

@@ -149,8 +149,8 @@ class WhileBlock(CodeBlock):
         pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset, 128, self.cheight + 8))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
         heightsum = self.cheight + 8
-        for i in range(0, size(blocks)):
-            heightsum += blocks[i].render(surface, xOffset + 8, yOffset + heightsum)
+        for block in self.blocks:
+            heightsum += block.render(surface, xOffset + 8, yOffset + heightsum)
         pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset + heightsum, 128, self.cheight + 8))
         pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset, 6, heightsum))
         return heightsum + self.cheight + 8
