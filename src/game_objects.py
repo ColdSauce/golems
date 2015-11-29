@@ -39,6 +39,9 @@ class MovableCharacter:
         self.sprite = self.load_function(name)
 
     def __init__(self, name, load_function, directional_sprites,x=0,y=0, gold=0):
+        # for now this is just hard coded
+        # placeholder sprite's justgonna be one of the directional sprites
+        self.bot = GenericBot(name + "'s bot", directional_sprites[0])
         self.moving = False
         self.load_function = load_function
         self.directional_sprites = directional_sprites

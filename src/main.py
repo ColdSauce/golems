@@ -32,12 +32,25 @@ class Scene():
         raise NotImplementedError
 
 class BattleScene(Scene):
+    class SpellRect():
+        def __init__(self,x,y,width,height):
+            self.rect = (x, y, width, height)
+            self.rect_color = (255,255,255)
+
+         
     def __init__(self, char1, char2):
+        global SCREEN_WIDTH
+        global SCREEN_HEIGHT
+        width = SCREEN_WIDTH/4
+        height = SCREEN_HEIGHT/2
         self.char1 = char1
         self.char2 = char2
-
+        
+        
     def render(self,surface):
-        surface.fill((30,30,100))
+        surface.fill((0,0,0))
+        pygame.draw.rect(surface, self.rect_color, self.first_char_rect, 3)
+        pygame.draw.rect(surface, self.rect_color, self.second_char_rect, 3)
 
     def update(self):
         pass
@@ -100,11 +113,13 @@ class InteractiveScene(Scene):
         height = self.height
         for character in self.movable_characters:
             surface.blit(character.sprite, ((width / 2) - 25 - (self.main_player.gridX * 50 + self.main_player.xOffset) + (character.gridX * 50 + character.xOffset), (height / 2) - 25 - (self.main_player.gridY * 50 + self.main_player.yOffset) + (character.gridY * 50 + character.yOffset)))
+
     def what_character_on_tile(self,x,y):
         for character in self.movable_characters:
             if character.gridX == x and character.gridY == y:
                 return character
         return None
+    
     def collided_with_another_character(self, char1, char2):
         self.manager.go_to(BattleScene(char1,char2))
 
