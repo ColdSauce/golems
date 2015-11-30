@@ -34,6 +34,8 @@ class Scene():
 class BattleScene(Scene):
     class UIRect():
         def __init__(self,x,y,width,height,char1, char2):
+            self.MAIN_CHARACTER_TURN = 0
+            self.ENEMY_TURN = 1
             self.x = x
             self.y = y
             self.width = width
@@ -43,14 +45,32 @@ class BattleScene(Scene):
             self.rect_color = (255,255,255)
             self.rect = (x,y,width,height)
             self.basic_font = pygame.font.SysFont("comicsansms",30)
+            self.p1_amount_codeblocks_executed = 0
+            self.p2_amount_codeblocks_executed = 0
             self.lines_to_write = []
 
             # Implemented __repr__ function which let's you change what is returned from str()
             p1_golem_name = self.basic_font.render(self.char1.list_of_bots[0].name, 1, (255,255,255))
+
             p1_golem_stats = self.basic_font.render(str(self.char1.list_of_bots[0]),1,(255,255,255))
+
             p2_golem_name = self.basic_font.render(self.char2.list_of_bots[0].name, 1, (255,255,255))
+
             p2_golem_stats = self.basic_font.render(str(self.char2.list_of_bots[0]),1,(255,255,255))
-            self.lines_to_write = [p1_golem_name, p1_golem_stats, p2_golem_name, p2_golem_stats]
+
+            p1_execution_left = self.basic_font.render("Codeblocks used: " + str(self.p1_amount_codeblocks_executed) + "/" + str(self.char1.list_of_bots[0].mana), 1, (255,255,255))
+
+            p2_execution_left = self.basic_font.render("Codeblocks used: " + str(self.p2_amount_codeblocks_executed) + "/" + str(self.char2.list_of_bots[0].mana), 1, (255,255,255))
+
+            which_turn = 0
+            whos_turn = self.who_starts(self.char1.list_of_bots[0], self.char2.list_of_bots[0])
+            self.lines_to_write = [p1_golem_name, p1_golem_stats, p1_execution_left,p2_golem_name, p2_golem_stats, p2_execution_left]
+
+        # The faster golem starts first
+        def who_starts(self, golem1, golem2):
+            if golem1.speed > golem2.speed:
+                return self.MAIN_CHARACTER_TURN
+            return self.ENEMY_TURN
 
         def render(self, surface):
             pygame.draw.rect(surface, self.rect_color, self.rect,3)
@@ -81,6 +101,8 @@ class BattleScene(Scene):
     def __init__(self, char1, char2):
         global SCREEN_WIDTH
         global SCREEN_HEIGHT
+        self.MAIN_CHARACTER_TURN = 0
+        self.ENEMY_TURN = 1
         width = SCREEN_WIDTH/4
         height = SCREEN_HEIGHT/2
         self.char1 = char1
@@ -94,6 +116,11 @@ class BattleScene(Scene):
         self.spell_rect1.render(surface)
         self.spell_rect2.render(surface)
         self.ui_rect.render(surface)
+
+    def next_turn(self):
+        # alternates between 0 and 1
+        self.ui_rect.whos_turn += 1
+        self.ui_rect.whos_turn = self.ui_rect.whos_turn % 2
 
 
     def update(self):
