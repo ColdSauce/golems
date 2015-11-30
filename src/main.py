@@ -172,19 +172,18 @@ class InteractiveScene(Scene):
 
     def doKeys(self,char):
         if char.moving: # Player's currently moving, ignore keypresses
-            return;
+            return
         keys = pygame.key.get_pressed()
         # Use change_direction instead of just changing the
         # variable since it also changes the sprite image
         if isUpPressed(keys):
-            self.move_up(char)
-            return
+            self.move(char,Direction.UP)
         elif isRightPressed(keys):
-            self.move_right(char)
+            self.move(char,Direction.RIGHT)
         elif isDownPressed(keys):
-            self.move_down(char)
+            self.move(char,Direction.DOWN)
         elif isLeftPressed(keys):
-            self.move_left(char)
+            self.move(char,Direction.LEFT)
 
     def render(self, surface):
         surface.fill((0,0,0))
@@ -203,61 +202,27 @@ class InteractiveScene(Scene):
     def collided_with_another_character(self, char1, char2):
         self.manager.go_to(BattleScene(char1,char2))
 
-    def move_up(self,character):
-        character.change_direction(Direction.UP)
-        character_at_loc =  self.what_character_on_tile(character.gridX, character.gridY - 1) 
+    def move(self,character,direction):
+	xMod = yMod = 0
+        character.change_direction(direction)
+	if direction is Direction.UP: yMod = -1
+	elif direction is Direction.RIGHT: xMod = 1
+	elif direction is Direction.DOWN: yMod = 1
+	elif direction is Direction.LEFT: xMod = -1
+	
+        character_at_loc =  self.what_character_on_tile(character.gridX + xMod, character.gridY + yMod) 
         if character_at_loc is not None:
             if character_at_loc is not character:
                 self.collided_with_another_character(character,character_at_loc)
                 return
-        if(not self.map.isSolid(character.gridX, character.gridY - 1)):
-            character.moving = True
-
-    def move_down(self,character):
-        character.change_direction(Direction.DOWN)
-        character_at_loc =  self.what_character_on_tile(character.gridX, character.gridY + 1) 
-        if character_at_loc is not None:
-            if character_at_loc is not character:
-                self.collided_with_another_character(character,character_at_loc)
-                return
-        if(not self.map.isSolid(character.gridX, character.gridY + 1)):
-            character.moving = True
-
-    def move_left(self,character):
-        character.change_direction(Direction.LEFT)
-        character_at_loc =  self.what_character_on_tile(character.gridX - 1, character.gridY) 
-        if character_at_loc is not None:
-            if character_at_loc is not character:
-                self.collided_with_another_character(character,character_at_loc)
-                return
-        if(not self.map.isSolid(character.gridX - 1, character.gridY)):
-            character.moving = True
-
-    def move_right(self,character):
-        character.change_direction(Direction.RIGHT)
-        character_at_loc =  self.what_character_on_tile(character.gridX + 1, character.gridY) 
-        if character_at_loc is not None:
-            if character_at_loc is not character:
-                self.collided_with_another_character(character,character_at_loc)
-                return
-        if(not self.map.isSolid(character.gridX + 1, character.gridY)):
+        if(not self.map.isSolid(character.gridX + xMod, character.gridY + yMod)):
             character.moving = True
 
     def update(self):
         for character in self.movable_characters:
             if character.moving:
                 if character == self.main_player:
-                    character.move(10)
-                    if not character.moving:
-                        keys = pygame.key.get_pressed()
-                        if isUpPressed(keys):
-                            self.move_up(character)
-                        elif isDownPressed(keys):
-                            self.move_down(character)
-                        elif isLeftPressed(keys):
-                            self.move_left(character)
-                        elif isRightPressed(keys):
-                            self.move_right(character)
+                    character.move(10) 
                 else:
                     character.move()
         self.doKeys(self.main_player)
