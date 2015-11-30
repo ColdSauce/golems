@@ -33,24 +33,30 @@ class Scene():
 
 class BattleScene(Scene):
     class UIRect():
-        def __init__(self,x,y,width,height,char,bot_id):
+        def __init__(self,x,y,width,height,char1, char2):
             self.x = x
             self.y = y
             self.width = width
             self.height = height
-            self.char = char
-            self.bot_id = bot_id
+            self.char1 = char1
+            self.char2 = char2
             self.rect_color = (255,255,255)
             self.rect = (x,y,width,height)
+            self.basic_font = pygame.font.SysFont("comicsansms",30)
+            self.lines_to_write = []
 
+            # Implemented __repr__ function which let's you change what is returned from str()
+            p1_golem_name = self.basic_font.render(self.char1.list_of_bots[0].name, 1, (255,255,255))
+            p1_golem_stats = self.basic_font.render(str(self.char1.list_of_bots[0]),1,(255,255,255))
+            p2_golem_name = self.basic_font.render(self.char2.list_of_bots[0].name, 1, (255,255,255))
+            p2_golem_stats = self.basic_font.render(str(self.char2.list_of_bots[0]),1,(255,255,255))
+            self.lines_to_write = [p1_golem_name, p1_golem_stats, p2_golem_name, p2_golem_stats]
 
         def render(self, surface):
             pygame.draw.rect(surface, self.rect_color, self.rect,3)
-
-
-            
-
-            
+            for index, line in enumerate(self.lines_to_write):
+                y_offset = index * 20
+                surface.blit(line, (self.x + 5, self.y + 5 + y_offset))
 
     class SpellRect():
 
@@ -81,11 +87,14 @@ class BattleScene(Scene):
         self.char2 = char2
         self.spell_rect1 = self.SpellRect(100,100,width,height,char1, 0)
         self.spell_rect2 = self.SpellRect(200 + width, 100, width,height,char2,0)
+        self.ui_rect = self.UIRect(2 * width  + 300, 100, width,height, char1,char2)
         
     def render(self,surface):
         surface.fill((0,0,0))
         self.spell_rect1.render(surface)
         self.spell_rect2.render(surface)
+        self.ui_rect.render(surface)
+
 
     def update(self):
         pass
