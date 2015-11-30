@@ -97,7 +97,7 @@ class Spells:
 
 class CodeBlock(object):
     def __init__(self):
-        self.font = pygame.font.SysFont(None, 20)
+        self.font = pygame.font.SysFont("comicsansms", 30)
     # Renders the Block to the screen.  Should return the total height of the block.
     def render(self, surface, xOffset = 0, yOffset = 0):
         raise NotImplementedError
