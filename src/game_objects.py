@@ -67,13 +67,16 @@ class Direction:
     LEFT  = 3
 
 class Element:
-    NEUTRAL = 0
-    IGNIS   = 1
-    NATURA  = 2
-    AQUA    = 3
+    NONE   = 0
+    FIRE   = 1
+    EARTH  = 2
+    WATER  = 3
+    AIR    = 4
+#Z- renamed these for code readability, feel free to call them anything in game
+
 
 class GenericBot:
-    def __init__(self, name, sprite, speed=1, health=100,mana=100,element=Element.NEUTRAL,spell_xp=dict(),list_of_spells=[],queue_of_code_blocks = list()):
+    def __init__(self, name, sprite, speed=1, health=100,mana=100,element=Element.NONE,spell_xp=dict(),list_of_spells=[],queue_of_code_blocks = list()):
         self.queue_of_code_blocks = queue_of_code_blocks
         self.name = name
         self.sprite = sprite 
