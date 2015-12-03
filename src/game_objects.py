@@ -86,7 +86,7 @@ class GenericBot:
         self.element = element
         self.spell_xp = spell_xp
         self.list_of_spells = list_of_spells
-    # Let's you change what the string representation of this class is 
+    # Lets you change what the string representation of this class is 
     def __repr__(self):
         return "Health: {}    Mana: {}    Speed: {}".format(str(self.health), str(self.mana), str(self.speed))
 
