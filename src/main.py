@@ -32,6 +32,35 @@ class Scene():
         raise NotImplementedError
 
 class BattleScene(Scene):
+    
+    def __init__(self, char1, char2):
+        global SCREEN_WIDTH
+        global SCREEN_HEIGHT
+        self.MAIN_CHARACTER_TURN = 0
+        self.ENEMY_TURN = 1
+        width = SCREEN_WIDTH/4
+        height = SCREEN_HEIGHT/2
+        self.char1 = char1
+        self.char2 = char2
+        self.spell_rect1 = self.SpellRect(100,100,width,height,char1, 0)
+        self.spell_rect2 = self.SpellRect(200 + width, 100, width,height,char2,0)
+        self.ui_rect = self.UIRect(2 * width  + 300, 100, width,height, char1,char2)
+        self.grid = self.makeGrid() 
+       
+    def render(self,surface):
+        surface.fill((150,150,150))
+        pygame.draw.rect(surface,(100,100,100),(0,0,1200,300))
+        surface.blit(self.grid,(0,300))
+        #self.spell_rect1.render(surface)
+        #self.spell_rect2.render(surface)
+        #self.ui_rect.render(surface)
+ 
+    def update(self):
+        pass
+    
+    def handle_events(self, events):
+        pass
+
     class UIRect():
         def __init__(self,x,y,width,height,char1, char2):
             self.MAIN_CHARACTER_TURN = 0
@@ -97,25 +126,6 @@ class BattleScene(Scene):
                 # Ideally, this should be the height of the codeblock but that's not an attribute of codeblock. I think it should be..
                 y_offset = index * 64
                 code_block.render(surface, xOffset = self.x, yOffset = self.y + y_offset)
- 
-    def __init__(self, char1, char2):
-        global SCREEN_WIDTH
-        global SCREEN_HEIGHT
-        self.MAIN_CHARACTER_TURN = 0
-        self.ENEMY_TURN = 1
-        width = SCREEN_WIDTH/4
-        height = SCREEN_HEIGHT/2
-        self.char1 = char1
-        self.char2 = char2
-        self.spell_rect1 = self.SpellRect(100,100,width,height,char1, 0)
-        self.spell_rect2 = self.SpellRect(200 + width, 100, width,height,char2,0)
-        self.ui_rect = self.UIRect(2 * width  + 300, 100, width,height, char1,char2)
-        
-    def render(self,surface):
-        surface.fill((0,0,0))
-        self.spell_rect1.render(surface)
-        self.spell_rect2.render(surface)
-        self.ui_rect.render(surface)
 
     def next_turn(self):
         # alternates between 0 and 1
@@ -123,12 +133,55 @@ class BattleScene(Scene):
         self.ui_rect.whos_turn = self.ui_rect.whos_turn % 2
 
 
-    def update(self):
-        pass
+    #called once in init, the return value is stored in self.grid 
+    def makeGrid(self):
+        color = (255,0,0)
+        color2 = (0,0,255)
+        nDist = 80
+        fDist = nDist * 2 / 3
+        h0 = 250
+        h1 = 150
+        h2 = 75
+        h3 = 25
+        
+        grid = pygame.Surface((400,300))
+       	rgrid = pygame.Surface((400,300))
+        rgFix = pygame.Surface((400,300))
+        final = pygame.Surface((900,300))
+        #left Grid vertical lines
+        pygame.draw.line(grid,color,(nDist,h0),(2*nDist,h3),2)
+        pygame.draw.line(grid,color,(nDist*2,h0),(2*nDist+fDist,h3),2)  
+        pygame.draw.line(grid,color,(nDist*3,h0),(2*nDist+2*fDist,h3),2)
+        pygame.draw.line(grid,color,(nDist*4,h0),(nDist*4,h3),2)
+        
+        #left grid horiz lines
+        pygame.draw.line(grid,color,(nDist,h0),(nDist*4,h0),2)
+        pygame.draw.line(grid,color,(15+nDist+nDist/3,h1),(nDist*4,h1),2)
+        pygame.draw.line(grid,color,(15+nDist+nDist/3*2,h2),(nDist*4,h2),2)
+        pygame.draw.line(grid,color,(nDist*2,h3),(nDist*4,h3),2)
+                
+        #right Grid vertical lines
+        pygame.draw.line(rgrid,color2,(nDist,h0),(2*nDist,h3),2)
+        pygame.draw.line(rgrid,color2,(nDist*2,h0),(2*nDist+fDist,h3),2)  
+        pygame.draw.line(rgrid,color2,(nDist*3,h0),(2*nDist+2*fDist,h3),2)
+        pygame.draw.line(rgrid,color2,(nDist*4,h0),(nDist*4,h3),2)
+        
+        #right grid horiz lines
+        pygame.draw.line(rgrid,color2,(nDist,h0),(nDist*4,h0),2)
+        pygame.draw.line(rgrid,color2,(15+nDist+nDist/3,h1),(nDist*4,h1),2)
+        pygame.draw.line(rgrid,color2,(15+nDist+nDist/3*2,h2),(nDist*4,h2),2)
+        pygame.draw.line(rgrid,color2,(nDist*2,h3),(nDist*4,h3),2)
+        
+        rgFix.blit(rgrid,(-50,0))
+        rgFix = pygame.transform.flip(rgFix,True,False)
+        
+        final.blit(rgFix,(500,0))
+        final.blit(grid,(0,0))
+        final.set_colorkey((0,0,0))
+        
+        return final
 
-    def handle_events(self, events):
-        pass
-
+   
 
 class InteractiveScene(Scene):
     def __init__(self):
@@ -212,7 +265,7 @@ class InteractiveScene(Scene):
 	
         character_at_loc =  self.what_character_on_tile(character.gridX + xMod, character.gridY + yMod) 
         if character_at_loc is not None:
-            if character_at_loc is not character:
+            if character_at_loc is not character: # This will need to be changed once we have multiple things to interact with.
                 self.collided_with_another_character(character,character_at_loc)
                 return
         if(not self.map.isSolid(character.gridX + xMod, character.gridY + yMod)):
