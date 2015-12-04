@@ -334,6 +334,7 @@ class InteractiveScene(Scene):
         self.width = SCREEN_WIDTH
         self.movable_characters = []
         self.map = Map(30, 15)
+        self.font = pygame.font.SysFont("couriernew", 24)
         some_test_list = []
         for x in range(0,10):
             some_test_list.append(WhileBlock())
@@ -366,21 +367,40 @@ class InteractiveScene(Scene):
 
         self.movable_characters.append(self.main_player)
         self.movable_characters.append(self.enemy_player)
+        
+        self.renderMenu = False
+        self.keysLastFrame = None
+        
+        self.menuIndex = 0
 
     def doKeys(self,char):
         if char.moving: # Player's currently moving, ignore keypresses
             return
         keys = pygame.key.get_pressed()
-        # Use change_direction instead of just changing the
-        # variable since it also changes the sprite image
-        if isUpPressed(keys):
-            self.move(char,Direction.UP)
-        elif isRightPressed(keys):
-            self.move(char,Direction.RIGHT)
-        elif isDownPressed(keys):
-            self.move(char,Direction.DOWN)
-        elif isLeftPressed(keys):
-            self.move(char,Direction.LEFT)
+        if isMenuPressed(keys) and not isMenuPressed(self.keysLastFrame):
+            self.renderMenu = not self.renderMenu
+        if(self.renderMenu):
+            if isUpPressed(keys) and not isUpPressed(self.keysLastFrame):
+                pass  # If we have more items, this decrements the menuIndex
+            elif isDownPressed(keys) and not isDownPressed(self.keysLastFrame):
+                pass  # If we have more items, this increments the menuIndex
+            elif isOkayPressed(keys) and not isOkayPressed(self.keysLastFrame):
+                self.renderMenu = False
+                self.manager.go_to(CodingScene(self.main_player, self))
+            elif isBackPressed(keys) and not isBackPressed(self.keysLastFrame):
+                self.renderMenu = False
+        else:
+            # Use change_direction instead of just changing the
+            # variable since it also changes the sprite image
+            if isUpPressed(keys):
+                self.move(char,Direction.UP)
+            elif isRightPressed(keys):
+                self.move(char,Direction.RIGHT)
+            elif isDownPressed(keys):
+                self.move(char,Direction.DOWN)
+            elif isLeftPressed(keys):
+                self.move(char,Direction.LEFT)
+        self.keysLastFrame = keys
 
     def render(self, surface):
         surface.fill((0,0,0))
@@ -389,6 +409,12 @@ class InteractiveScene(Scene):
         height = self.height
         for character in self.movable_characters:
             surface.blit(character.sprite, ((width / 2) - 25 - (self.main_player.gridX * 50 + self.main_player.xOffset) + (character.gridX * 50 + character.xOffset), (height / 2) - 25 - (self.main_player.gridY * 50 + self.main_player.yOffset) + (character.gridY * 50 + character.yOffset)))
+        if(self.renderMenu):
+            pygame.draw.rect(surface, (0, 230, 180), (width - 266, 10, 256, 512))
+            menuItemOne = self.font.render("EDIT CODE", 0, (0, 0, 0), (0, 230, 180))
+            surface.blit(menuItemOne, (width - 221, 25))
+            if(self.menuIndex == 0):
+                pygame.draw.polygon(surface, (0, 0, 0), [(width - 241, 25), (width - 241, 49), (width - 235, 37)], 4)
 
     def what_character_on_tile(self,x,y):
         for character in self.movable_characters:
@@ -400,12 +426,12 @@ class InteractiveScene(Scene):
         self.manager.go_to(BattleScene(char1,char2))
 
     def move(self,character,direction):
-	xMod = yMod = 0
+        xMod = yMod = 0
         character.change_direction(direction)
-	if direction is Direction.UP: yMod = -1
-	elif direction is Direction.RIGHT: xMod = 1
-	elif direction is Direction.DOWN: yMod = 1
-	elif direction is Direction.LEFT: xMod = -1
+        if direction is Direction.UP: yMod = -1
+        elif direction is Direction.RIGHT: xMod = 1
+        elif direction is Direction.DOWN: yMod = 1
+        elif direction is Direction.LEFT: xMod = -1
 	
         character_at_loc =  self.what_character_on_tile(character.gridX + xMod, character.gridY + yMod) 
         if character_at_loc is not None:
@@ -432,13 +458,25 @@ class InteractiveScene(Scene):
         pass
 
 class CodingScene(Scene):
-    def __init__(self):
-        pass
+    def __init__(self, mainChar, mainScene):
+        self.char = mainChar
+        self.font = pygame.font.SysFont("couriernew", 24)
+        self.rtnScene = mainScene
+        self.keysLastFrame = None
     def render(self, surface):
-        pass
+        surface.fill((0,0,0))
+        surface.blit(self.font.render("WIP", 0, (255, 255, 255), (0, 0, 0)), (25, 25))
+    def doKeys(self):
+        keys = pygame.key.get_pressed()
+        if isBackPressed(keys) and not isBackPressed(self.keysLastFrame):
+            self.manager.go_to(self.rtnScene)
+        self.keysLastFrame = keys
     def update(self):
-        pass
+        self.doKeys()
     def handle_events(self, events):
+        for event in events:
+            if event.type == pygame.VIDEORESIZE:
+                self.width,self.height = event.size
         pass
 
 class MenuScreen(Scene):
@@ -503,16 +541,16 @@ class GolemsGame:
         stub = 0
 
 def isUpPressed(keys):
-    return keys[pygame.K_UP] or keys[pygame.K_KP8] or keys[pygame.K_k]
+    return keys != None and (keys[pygame.K_UP] or keys[pygame.K_KP8] or keys[pygame.K_k])
 def isDownPressed(keys):
-    return keys[pygame.K_DOWN] or keys[pygame.K_KP2] or keys[pygame.K_j]
+    return keys != None and (keys[pygame.K_DOWN] or keys[pygame.K_KP2] or keys[pygame.K_j])
 def isLeftPressed(keys):
-    return keys[pygame.K_LEFT] or keys[pygame.K_KP4] or keys[pygame.K_h]
+    return keys != None and (keys[pygame.K_LEFT] or keys[pygame.K_KP4] or keys[pygame.K_h])
 def isRightPressed(keys):
-    return keys[pygame.K_RIGHT] or keys[pygame.K_KP6] or keys[pygame.K_l]
+    return keys != None and (keys[pygame.K_RIGHT] or keys[pygame.K_KP6] or keys[pygame.K_l])
 def isOkayPressed(keys): # Okay uses Check on Gamepad. 
-    return keys[pygame.K_ENTER] or keys[pygame.K_KP1]
+    return keys != None and (keys[pygame.K_RETURN] or keys[pygame.K_KP1])
 def isBackPressed(keys): # Back uses the X
-    return keys[pygame.K_BACKSPACE] or keys[pygame.K_KP3]
+    return keys != None and (keys[pygame.K_BACKSPACE] or keys[pygame.K_KP3])
 def isMenuPressed(keys): # Menu uses the Square.
-    return keys[pygame.K_TAB] or keys[pygame.K_KP7]
+    return keys != None and (keys[pygame.K_TAB] or keys[pygame.K_KP7])

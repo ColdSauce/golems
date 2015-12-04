@@ -86,10 +86,13 @@ class GenericBot:
         self.element = element
         self.spell_xp = spell_xp
         self.list_of_spells = list_of_spells
+<<<<<<< Updated upstream
+    # Lets you change what the string representation of this class is 
+=======
         self.pOwned = pOwned #Boolean, 'player owned':
         self.location = None #Gets set once battle begins
-
     # Let's you change what the string representation of this class is 
+>>>>>>> Stashed changes
     def __repr__(self):
         return "Health: {}  Mana: {}  Speed: {}".format(str(self.health), str(self.mana), str(self.speed))
 
