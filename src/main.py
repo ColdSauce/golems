@@ -242,7 +242,9 @@ class InteractiveScene(Scene):
                 pass  # If we have more items, this increments the menuIndex
             elif isOkayPressed(keys) and not isOkayPressed(self.keysLastFrame):
                 self.renderMenu = False
-                self.manager.go_to(CodingScene(main_player, self))
+                self.manager.go_to(CodingScene(self.main_player, self))
+            elif isBackPressed(keys) and not isBackPressed(self.keysLastFrame):
+                self.renderMenu = False
         else:
             # Use change_direction instead of just changing the
             # variable since it also changes the sprite image
@@ -403,7 +405,7 @@ def isLeftPressed(keys):
 def isRightPressed(keys):
     return keys != None and (keys[pygame.K_RIGHT] or keys[pygame.K_KP6] or keys[pygame.K_l])
 def isOkayPressed(keys): # Okay uses Check on Gamepad. 
-    return keys != None and (keys[pygame.K_ENTER] or keys[pygame.K_KP1])
+    return keys != None and (keys[pygame.K_RETURN] or keys[pygame.K_KP1])
 def isBackPressed(keys): # Back uses the X
     return keys != None and (keys[pygame.K_BACKSPACE] or keys[pygame.K_KP3])
 def isMenuPressed(keys): # Menu uses the Square.
