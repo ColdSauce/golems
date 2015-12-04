@@ -76,7 +76,7 @@ class Element:
 
 
 class GenericBot:
-    def __init__(self, name, sprite, speed=1, health=100,mana=100,element=Element.NONE,spell_xp=dict(),list_of_spells=[],queue_of_code_blocks = list()):
+    def __init__(self, name, sprite, speed=10, health=100,mana=100,element=Element.NONE,spell_xp=dict(),list_of_spells=[],queue_of_code_blocks = list(),pOwned = False):
         self.queue_of_code_blocks = queue_of_code_blocks
         self.name = name
         self.sprite = sprite 
@@ -86,9 +86,15 @@ class GenericBot:
         self.element = element
         self.spell_xp = spell_xp
         self.list_of_spells = list_of_spells
+<<<<<<< Updated upstream
     # Lets you change what the string representation of this class is 
+=======
+        self.pOwned = pOwned #Boolean, 'player owned':
+        self.location = None #Gets set once battle begins
+    # Let's you change what the string representation of this class is 
+>>>>>>> Stashed changes
     def __repr__(self):
-        return "Health: {}    Mana: {}    Speed: {}".format(str(self.health), str(self.mana), str(self.speed))
+        return "Health: {}  Mana: {}  Speed: {}".format(str(self.health), str(self.mana), str(self.speed))
 
 class Spells:
     def __init__(self, name, mana_cost=25, attack_power=5,multiplier=dict(),accuracy=0.5):
