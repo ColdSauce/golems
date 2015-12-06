@@ -1,4 +1,4 @@
-import pygame, kbInput
+import pygame, kbInput, game_objects
 
 class BattleScene(Scene):
     
