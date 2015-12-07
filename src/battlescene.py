@@ -1,27 +1,21 @@
-import pygame, kbInput, game_objects
+import pygame, kbInput, game_objects, scene
 
-class BattleScene(Scene):
+class BattleScene(scene.Scene):
     
     def __init__(self, char1, char2):
-        global SCREEN_WIDTH
-        global SCREEN_HEIGHT
-        self.MAIN_CHARACTER_TURN = 0
-        self.ENEMY_TURN = 1
-        width = SCREEN_WIDTH/4
-        height = SCREEN_HEIGHT/2
+        #self.spell_rect1 = self.SpellRect(100,100,width,height,char1, 0)
+        #self.spell_rect2 = self.SpellRect(200 + width, 100, width,height,char2,0)
+        #self.ui_rect = self.UIRect(2 * width  + 300, 100, width,height, char1,char2)
+        self.grid = self.makeGrid()
         self.char1 = char1
         self.char2 = char2
-        self.spell_rect1 = self.SpellRect(100,100,width,height,char1, 0)
-        self.spell_rect2 = self.SpellRect(200 + width, 100, width,height,char2,0)
-        self.ui_rect = self.UIRect(2 * width  + 300, 100, width,height, char1,char2)
-        self.grid = self.makeGrid()
-        self.bManager = self.BattleManager(char1,char2) 
+        self.startBattle()
        
     def render(self,surface):
         surface.fill((150,150,150)) # bg color
         pygame.draw.rect(surface,(100,100,100),(0,0,1200,450)) # wall color + size
         surface.blit(self.grid,(0,300))
-        self.bManager.drawBots(surface)
+        self.drawBots(surface)
         #self.spell_rect1.render(surface)
         #self.spell_rect2.render(surface)
         #self.ui_rect.render(surface)
@@ -32,16 +26,16 @@ class BattleScene(Scene):
 
     def update(self):
         keys = pygame.key.get_pressed()
-        if isUpPressed(keys):
+        if kbInput.isUpPressed(keys):
             self.moveBotByDir(self.c1Bots[0],0,1)
             self.moveBotByDir(self.c2Bots[0],0,1)
-        elif isRightPressed(keys):
+        elif kbInput.isRightPressed(keys):
             self.moveBotByDir(self.c1Bots[0],1,0)
             self.moveBotByDir(self.c2Bots[0],1,0)
-        elif isDownPressed(keys):
+        elif kbInput.isDownPressed(keys):
             self.moveBotByDir(self.c1Bots[0],0,-1)
             self.moveBotByDir(self.c2Bots[0],0,-1)
-        elif isLeftPressed(keys):
+        elif kbInput.isLeftPressed(keys):
             self.moveBotByDir(self.c1Bots[0],-1,0)
             self.moveBotByDir(self.c2Bots[0],-1,0)
 

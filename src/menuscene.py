@@ -1,4 +1,6 @@
-class MenuScreen(Scene):
+import scene, pygame
+
+class MenuScene(scene.Scene):
     def __init__(self):
         self.font_color = (200,200,200)
         self.font = pygame.font.SysFont("comicsansms", 500)
@@ -13,6 +15,6 @@ class MenuScreen(Scene):
             #print("event is " + str(event)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 print "this works"
-                self.manager.go_to(InteractiveScene())
+                self.manager.go_to(scene.Scenes.INTERACTIVE)
 
 

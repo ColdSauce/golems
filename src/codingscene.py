@@ -1,4 +1,6 @@
-class CodingScene(Scene):
+import scene, pygame
+
+class CodingScene(scene.Scene):
     def __init__(self, mainChar, mainScene):
         self.char = mainChar
         self.font = pygame.font.SysFont("couriernew", 24)

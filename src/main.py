@@ -24,7 +24,7 @@ class GolemsGame:
         SCREEN_WIDTH = width
         SCREEN_HEIGHT = height
 
-        manager = SceneManager()
+        manager = scenemanager.SceneManager()
         while True:
             if(isLinux):
                 while Gtk.events_pending():

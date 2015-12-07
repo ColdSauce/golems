@@ -1,21 +1,21 @@
-import pygame, kbInput, game_objects
+import pygame, kbInput, game_objects, scene, worldmap
 
-class InteractiveScene(Scene):
+class InteractiveScene(scene.Scene):
     def __init__(self):
         global SCREEN_HEIGHT
         global SCREEN_WIDTH
-        self.height = SCREEN_HEIGHT
-        self.width = SCREEN_WIDTH
+        self.height = 900 # help with globals?
+        self.width = 1200
         self.movable_characters = []
-        self.map = Map(30, 15)
+        self.map = worldmap.Map(30, 15)
         self.font = pygame.font.SysFont("couriernew", 24)
         some_test_list = []
         for x in range(0,10):
-            some_test_list.append(WhileBlock())
-        self.main_player = MainPlayer(name = "P1",
+            some_test_list.append(game_objects.WhileBlock())
+        self.main_player = game_objects.MainPlayer(name = "P1",
                                       load_function = pygame.image.load,
                                       # The sprite for the bot will just be the up picture for placeholder.."
-                                      list_of_bots = [GenericBot("Stefan's Bot", "res/main_player/up.png", pOwned = True, queue_of_code_blocks = some_test_list)],
+                                      list_of_bots = [game_objects.GenericBot("Stefan's Bot", "res/main_player/up.png", pOwned = True, queue_of_code_blocks = some_test_list)],
                                       directional_sprites = ["res/main_player/up.png", 
                                                              "res/main_player/right.png", 
                                                              "res/main_player/down.png", 
@@ -25,10 +25,10 @@ class InteractiveScene(Scene):
                                       )
         some_test_list = []
         for x in range(0,10):
-            some_test_list.append(SayBlock())
-        self.enemy_player = EnemyPlayer(name = "Example AI",
+            some_test_list.append(game_objects.SayBlock())
+        self.enemy_player = game_objects.EnemyPlayer(name = "Example AI",
                                         load_function = pygame.image.load,
-                                        list_of_bots = [GenericBot("enemy's Bot", "res/main_player/up.png",queue_of_code_blocks = some_test_list,speed=8)],
+                                        list_of_bots = [game_objects.GenericBot("enemy's Bot", "res/main_player/up.png",queue_of_code_blocks = some_test_list,speed=8)],
                                         directional_sprites = ["res/main_player/up.png", 
                                                              "res/main_player/right.png", 
                                                              "res/main_player/down.png", 
@@ -51,29 +51,29 @@ class InteractiveScene(Scene):
         if char.moving: # Player's currently moving, ignore keypresses
             return
         keys = pygame.key.get_pressed()
-        if isMenuPressed(keys) and not isMenuPressed(self.keysLastFrame):
+        if kbInput.isMenuPressed(keys) and not kbInput.isMenuPressed(self.keysLastFrame):
             self.renderMenu = not self.renderMenu
         if(self.renderMenu):
-            if isUpPressed(keys) and not isUpPressed(self.keysLastFrame):
+            if kbInput.isUpPressed(keys) and not kbInput.isUpPressed(self.keysLastFrame):
                 pass  # If we have more items, this decrements the menuIndex
-            elif isDownPressed(keys) and not isDownPressed(self.keysLastFrame):
+            elif kbInput.isDownPressed(keys) and not kbInput.isDownPressed(self.keysLastFrame):
                 pass  # If we have more items, this increments the menuIndex
-            elif isOkayPressed(keys) and not isOkayPressed(self.keysLastFrame):
+            elif kbInput.isOkayPressed(keys) and not kbInput.isOkayPressed(self.keysLastFrame):
                 self.renderMenu = False
                 self.manager.go_to(CodingScene(self.main_player, self))
-            elif isBackPressed(keys) and not isBackPressed(self.keysLastFrame):
+            elif kbInput.isBackPressed(keys) and not kbInput.isBackPressed(self.keysLastFrame):
                 self.renderMenu = False
         else:
             # Use change_direction instead of just changing the
             # variable since it also changes the sprite image
-            if isUpPressed(keys):
-                self.move(char,Direction.UP)
-            elif isRightPressed(keys):
-                self.move(char,Direction.RIGHT)
-            elif isDownPressed(keys):
-                self.move(char,Direction.DOWN)
-            elif isLeftPressed(keys):
-                self.move(char,Direction.LEFT)
+            if kbInput.isUpPressed(keys):
+                self.move(char,game_objects.Direction.UP)
+            elif kbInput.isRightPressed(keys):
+                self.move(char,game_objects.Direction.RIGHT)
+            elif kbInput.isDownPressed(keys):
+                self.move(char,game_objects.Direction.DOWN)
+            elif kbInput.isLeftPressed(keys):
+                self.move(char,game_objects.Direction.LEFT)
         self.keysLastFrame = keys
 
     def render(self, surface):
@@ -97,15 +97,15 @@ class InteractiveScene(Scene):
         return None
     
     def collided_with_another_character(self, char1, char2):
-        self.manager.go_to(BattleScene(char1,char2))
+        self.manager.go_to(scene.Scenes.BATTLE, c1 = char1, c2 = char2)
 
     def move(self,character,direction):
         xMod = yMod = 0
         character.change_direction(direction)
-        if direction is Direction.UP: yMod = -1
-        elif direction is Direction.RIGHT: xMod = 1
-        elif direction is Direction.DOWN: yMod = 1
-        elif direction is Direction.LEFT: xMod = -1
+        if direction is game_objects.Direction.UP: yMod = -1
+        elif direction is game_objects.Direction.RIGHT: xMod = 1
+        elif direction is game_objects.Direction.DOWN: yMod = 1
+        elif direction is game_objects.Direction.LEFT: xMod = -1
 	
         character_at_loc =  self.what_character_on_tile(character.gridX + xMod, character.gridY + yMod) 
         if character_at_loc is not None:

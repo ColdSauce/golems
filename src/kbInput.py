@@ -1,3 +1,5 @@
+import pygame
+
 def isUpPressed(keys):
     return keys != None and (keys[pygame.K_UP] or keys[pygame.K_KP8] or keys[pygame.K_k])
 def isDownPressed(keys):

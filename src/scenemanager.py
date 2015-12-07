@@ -1,22 +1,28 @@
+import menuscene, battlescene, intscene, codingscene, scene
+
 class SceneManager():
+
     def __init__(self):
-        self.go_to(MenuScreen())
+        # initialized the scene array to empty values.
+        self.scenes = []
+        for i in range(scene.Scenes.NUMSCENES) : self.scenes.append(None)
+        self.go_to(scene.Scenes.MENU)
 
-    def go_to(self, scene):
-        self.scene = scene
-        self.scene.manager = self
+    def go_to(self, sNum, **specArgs):
 
-class Scene():
-    def __init__(self):
-        pass
+        # create the scene the first time it is visited
+        if self.scenes[sNum] is None:
+            if sNum is scene.Scenes.MENU:
+                self.scenes[sNum] = menuscene.MenuScene()
+            elif sNum is scene.Scenes.INTERACTIVE:
+                self.scenes[sNum] = intscene.InteractiveScene()
+            elif sNum is scene.Scenes.BATTLE: 
+                self.scenes[sNum] = battlescene.BattleScene(specArgs['c1'],specArgs['c2'])
+            elif sNum is scene.Scenes.CODING:
+                self.scenes[sNum] = codingscene.CodingScene()
 
-    def render(self, surface):
-        raise NotImplementedError
-
-    def update(self):
-        raise NotImplementedError
-
-    def handle_events(self, events):
-        raise NotImplementedError
+        self.scenes[sNum].manager = self
+        self.scene = self.scenes[sNum]
+        
 
 
