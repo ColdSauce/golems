@@ -60,7 +60,7 @@ class InteractiveScene(scene.Scene):
                 pass  # If we have more items, this increments the menuIndex
             elif kbInput.isOkayPressed(keys) and not kbInput.isOkayPressed(self.keysLastFrame):
                 self.renderMenu = False
-                self.manager.go_to(CodingScene(self.main_player, self))
+                self.manager.go_to(scene.Scenes.CODING, plyr = self.main_player)
             elif kbInput.isBackPressed(keys) and not kbInput.isBackPressed(self.keysLastFrame):
                 self.renderMenu = False
         else:

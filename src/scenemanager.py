@@ -19,7 +19,7 @@ class SceneManager():
             elif sNum is scene.Scenes.BATTLE: 
                 self.scenes[sNum] = battlescene.BattleScene(specArgs['c1'],specArgs['c2'])
             elif sNum is scene.Scenes.CODING:
-                self.scenes[sNum] = codingscene.CodingScene()
+                self.scenes[sNum] = codingscene.CodingScene(specArgs['plyr'])
 
         self.scenes[sNum].manager = self
         self.scene = self.scenes[sNum]
