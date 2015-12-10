@@ -202,7 +202,7 @@ class EndTurnBlock(CodeBlock):
         super(EndTurnBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("End my Turn")
         self.fontRender = self.font.render("End my Turn", 0, (0, 0, 0), (255, 64, 64))
-    def render(self, surface, xOffset = 0, yOffset = 0, selBlock =None, arrowBefore = False):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         if(self == selBlock and arrowBefore):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
         pygame.draw.rect(surface, (255, 64, 64), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
@@ -345,7 +345,7 @@ class FireballBlock(CodeBlock):
         self.mana_cost = mana_cost
         self.damage_amount = damage_amount
         self.fontRender = self.font.render("Cast Fireball at the enemy", 0, (255, 255, 255), (128, 0, 0))
-    def render(self, surface, xOffset = 0, yOffset = 0, selBlock =None, arrowBefore = False):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         if(self == selBlock and arrowBefore):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
         pygame.draw.rect(surface, (128, 0, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
@@ -393,7 +393,7 @@ class DouseBlock(CodeBlock):
         self.fontRender = self.font.render("Cast Douse at the enemy", 0, (255, 255, 255), (0, 0, 255))
         self.damage_amount = damage_amount
         self.mana_cost = mana_cost
-    def render(self, surface, xOffset = 0, yOffset = 0, selBlock =None, arrowBefore = False):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         if(self == selBlock and arrowBefore):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
         pygame.draw.rect(surface, (0, 0, 255), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))

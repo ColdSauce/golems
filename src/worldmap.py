@@ -35,6 +35,21 @@ class Map:
     def isSolid(self, x, y):
         return self.map[y][x].solid
   
+    def getEnemyLocations(self):
+        locs = []
+        numEnemies = randint(3,5)
+        numSpots = len(self.path)
+
+        for x in range(0,numEnemies):
+            pLoc = None #potential Location
+            while pLoc is None or pLoc in locs or pLoc is self.start: 
+                index = randint(0,numSpots-1)
+                pLoc = self.path[index]
+            locs.append(pLoc)
+            #print "adding enemy with loc x:%d , y:%d" % (pLoc[0], pLoc[1])
+
+        return locs
+
     def makePath(self):
         cLoc = self.start
         path = [] # array of positions
