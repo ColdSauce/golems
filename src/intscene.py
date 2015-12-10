@@ -10,11 +10,11 @@ class InteractiveScene(scene.Scene):
         self.map = worldmap.Map(30, 15)
         self.font = pygame.font.SysFont("couriernew", 24)
         cmntBlock = game_objects.CommentBlock()
-        cmntBlock.setComment("This comment is a comment.")
+        cmntBlock.setComment("Insert code below.")
         self.main_player = game_objects.MainPlayer(name = "P1",
                                       load_function = pygame.image.load,
                                       # The sprite for the bot will just be the up picture for placeholder.."
-                                      list_of_bots = [game_objects.GenericBot("Stefan's Bot", "res/main_player/up.png", pOwned = True, queue_of_code_blocks = [cmntBlock, cmntBlock])],
+                                      list_of_bots = [game_objects.GenericBot("Stefan's Bot", "res/main_player/up.png", pOwned = True, queue_of_code_blocks = [cmntBlock])],
                                       directional_sprites = ["res/main_player/up.png", 
                                                              "res/main_player/right.png", 
                                                              "res/main_player/down.png", 

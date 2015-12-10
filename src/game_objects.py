@@ -210,7 +210,7 @@ class WhileBlock(CodeBlock):
             self.blocks.append(blockToInsert)
         else:  # Insert into middle of list
             currArrowIndex = arrowIndex - 1;
-            for i in range(0, size(self.blocks)):
+            for i in range(0, len(self.blocks)):
                 if(currArrowIndex == 0):
                     self.blocks.insert(i, blockToInsert)
                     return True
@@ -263,7 +263,7 @@ class IfManaBlock(CodeBlock):
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
         heightsum = self.cheight + 8
         arrowCnt = 1
-        for i in range(0, size(self.trueBlocks)):
+        for i in range(0, len(self.trueBlocks)):
             heightsum += self.trueBlocks[i].render(surface, xOffset + 8, yOffset + heightsum, selBlock, arrowBefore, renderArrowCnt - arrowCnt)
             arrowCnt += self.trueBlocks[i].getArrowCount()
         if(renderArrowCnt == arrowCnt):
@@ -272,7 +272,7 @@ class IfManaBlock(CodeBlock):
         pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + 1 + heightsum, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.elseRender, (xOffset + 4, yOffset + heightsum + 4))
         heightsum += self.cheight + 8
-        for i in range(0, size(self.falseBlocks)):
+        for i in range(0, len(self.falseBlocks)):
             heightsum += self.falseBlocks[i].render(surface, xOffset + 8, yOffset + heightsum, selBlock, arrowBefore, renderArrowCnt - arrowCnt)
             arrowCnt += self.falseBlocks[i].getArrowCount()
         if(renderArrowCnt == arrowCnt):
@@ -289,10 +289,10 @@ class IfManaBlock(CodeBlock):
         return rtn
     def getRenderHeight(self):
         heightsum = self.cheight + 8
-        for i in range(0, size(self.trueBlocks)):
+        for i in range(0, len(self.trueBlocks)):
             heightsum += trueBlocks[i].getRenderHeight()
         heightsum += self.cheight + 8
-        for i in range(0, size(self.falseBlocks)):
+        for i in range(0, len(self.falseBlocks)):
             heightsum += falseBlocks[i].getRenderHeight()
         return heightsum + self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
@@ -307,7 +307,7 @@ class IfManaBlock(CodeBlock):
             return False  # Should have been handled by calling function 
         else:  # Insert into middle of list
             currArrowIndex = arrowIndex - 1;
-            for i in range(0, size(self.trueBlocks)):
+            for i in range(0, len(self.trueBlocks)):
                 if(currArrowIndex == 0):
                     self.trueBlocks.insert(i, blockToInsert)
                     return True
@@ -319,7 +319,7 @@ class IfManaBlock(CodeBlock):
                 self.trueBlocks.append(blockToInsert)
                 return True
             currArrowIndex -= 1
-            for i in range(0, size(self.falseBlocks)):
+            for i in range(0, len(self.falseBlocks)):
                 if(currArrowIndex == 0):
                     self.falseBlocks.insert(i, blockToInsert)
                     return True
@@ -380,10 +380,10 @@ class IfOwnHealthBlock(CodeBlock):
         return rtn
     def getRenderHeight(self):
         heightsum = self.cheight + 8
-        for i in range(0, size(self.trueBlocks)):
+        for i in range(0, len(self.trueBlocks)):
             heightsum += self.trueBlocks[i].getRenderHeight()
         heightsum += self.cheight + 8
-        for i in range(0, size(self.falseBlocks)):
+        for i in range(0, len(self.falseBlocks)):
             heightsum += self.falseBlocks[i].getRenderHeight()
         return heightsum + self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
@@ -398,7 +398,7 @@ class IfOwnHealthBlock(CodeBlock):
             return False  # Should have been handled by calling function 
         else:  # Insert into middle of list
             currArrowIndex = arrowIndex - 1;
-            for i in range(0, size(self.trueBlocks)):
+            for i in range(0, len(self.trueBlocks)):
                 if(currArrowIndex == 0):
                     self.trueBlocks.insert(i, blockToInsert)
                     return True
@@ -410,7 +410,7 @@ class IfOwnHealthBlock(CodeBlock):
                 self.trueBlocks.append(blockToInsert)
                 return True
             currArrowIndex -= 1
-            for i in range(0, size(self.falseBlocks)):
+            for i in range(0, len(self.falseBlocks)):
                 if(currArrowIndex == 0):
                     self.falseBlocks.insert(i, blockToInsert)
                     return True
