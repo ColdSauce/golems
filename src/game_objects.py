@@ -106,14 +106,14 @@ class CodeBlock(object):
     def __init__(self):
         self.font = pygame.font.SysFont("comicsansms", 24)
     # Renders the Block to the screen.  Should return the total height of the block.
-    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         raise NotImplementedError
     # Gets the screen height of the block
     def getRenderHeight(self):
         raise NotImplementedError
     # Executes the Block, taking into consideration whether or not this is a calc-mana-cost-only dry run.  Should return mana spent in total, or a tuple of (mana total, flag saying 'had hit an End Turn block').
     def execute(self, ownerBot, opponentBot, dryRun = False):
-        raise NotImplementedError
+        pass
 
 # Comment Block.  Does nothing, handy for in-code notes.
 class CommentBlock(CodeBlock):
@@ -122,7 +122,7 @@ class CommentBlock(CodeBlock):
         self.comment = "";
         self.cwidth, self.cheight = self.font.size("# ")
         self.fontRender = self.font.render("# ", 0, (0, 0, 0), (190, 255, 190))
-    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         pygame.draw.rect(surface, (190, 255, 190), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
         if(self == selBlock):
@@ -144,7 +144,7 @@ class SayBlock(CodeBlock):
         self.message = "";
         self.cwidth, self.cheight = self.font.size("Say \"\"")
         self.fontRender = self.font.render("Say \"\"", 0, (0, 0, 0), (205, 205, 205))
-    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         pygame.draw.rect(surface, (205, 205, 205), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
         if(self == selBlock):
@@ -153,6 +153,7 @@ class SayBlock(CodeBlock):
     def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
+
         return 0
     def setMessage(self, newMessage):
         self.message = newMessage
@@ -166,7 +167,7 @@ class WhileBlock(CodeBlock):
         self.blocks = []
         _, self.cheight = self.font.size("WAAA")
         self.fontRender = self.font.render("Do Forever", 0, (0, 0, 0), (255, 255, 190))
-    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset + 1, 128, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
         heightsum = self.cheight + 8
@@ -183,7 +184,8 @@ class WhileBlock(CodeBlock):
             heightsum += trueBlocks[i].getRenderHeight()
         return heightsum + self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
-        return 0
+        for block in self.blocks:
+            block.execute(ownerBot,opponentBot)
 
 # For Block.  Performs a task on each Golem being faced.  Do not implement, only doing 1v1 battles atm.
 #class ForBlock(CodeBlock):
@@ -200,7 +202,7 @@ class EndTurnBlock(CodeBlock):
         super(EndTurnBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("End my Turn")
         self.fontRender = self.font.render("End my Turn", 0, (0, 0, 0), (255, 64, 64))
-    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         if(self == selBlock and arrowBefore):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
         pygame.draw.rect(surface, (255, 64, 64), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
@@ -223,7 +225,7 @@ class IfManaBlock(CodeBlock):
         self.cwidth, self.cheight = self.font.size("If I have more than 9999 Mana")
         self.fontRender = self.font.render("If I have more than 0 Mana", 0, (0, 0, 0), (128, 205, 255))
         self.elseRender = self.font.render("Otherwise", 0, (0, 0, 0), (128, 205, 255))
-    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         if(self == selBlock and arrowBefore):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
         pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
@@ -250,7 +252,13 @@ class IfManaBlock(CodeBlock):
             heightsum += falseBlocks[i].getRenderHeight()
         return heightsum + self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
-        return 0
+        if ownerBot.mana > self.mthresh:
+            for t_block in self.trueBlocks:
+                t_block.execute(ownerBot, opponentBot)
+        else:
+            for f_block in self.falseBlocks:
+                f_block.execute(ownerBot, opponentBot)
+
     def setThresh(self, newThresh):
         self.mthresh = newThresh
         self.fontRender = self.font.render("If I have more than " + str(self.mthresh) + " Mana", 0, (0, 0, 0), (128, 205, 255))
@@ -265,7 +273,7 @@ class IfOwnHealthBlock(CodeBlock):
         self.cwidth, self.cheight = self.font.size("If I have less than 9999 Health")
         self.fontRender = self.font.render("If I have less than 0 Health", 0, (0, 0, 0), (255, 200, 200))
         self.elseRender = self.font.render("Otherwise", 0, (0, 0, 0), (255, 200, 200))
-    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         if(self == selBlock and arrowBefore):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
         pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 8))
@@ -292,18 +300,27 @@ class IfOwnHealthBlock(CodeBlock):
             heightsum += falseBlocks[i].getRenderHeight()
         return heightsum + self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
-        return 0
+        if ownerBot.health > self.hthresh:
+            for t_block in self.trueBlocks:
+                t_block.execute(ownerBot, opponentBot)
+        else:
+            for f_block in self.falseBlocks:
+                f_block.execute(ownerBot, opponentBot)
+
+
+
     def setThresh(self, newThresh):
         self.hthresh = newThresh
         self.fontRender = self.font.render("If I have less than " + str(self.hthresh) + " Health", 0, (0, 0, 0), (255, 200, 200))
 
 # Heal Block.  Causes the Golem to cast the Heal spell, restoring a certain amount of health not controlled by the program.
 class HealBlock(CodeBlock):
-    def __init__(self):
+    def __init__(self, heal_amount):
         super(HealBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("Cast Heal on myself")
+        self.heal_amount = heal_amount
         self.fontRender = self.font.render("Cast Heal on myself", 0, (0, 0, 0), (255, 200, 200))
-    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         if(self == selBlock and arrowBefore):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
         pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
@@ -314,15 +331,16 @@ class HealBlock(CodeBlock):
     def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
-        return 0
+        ownerBot.health = (ownerBot.health + self.heal_amount) % 100
+        
 
 # Fireball Block.  Causes the Golem to cast Fireball, dealing ignis damage on an opponent.
 class FireballBlock(CodeBlock):
-    def __init__(self):
+    def __init__(self, damage_amount):
         super(FireballBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("Cast Fireball at the enemy")
         self.fontRender = self.font.render("Cast Fireball at the enemy", 0, (255, 255, 255), (128, 0, 0))
-    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         if(self == selBlock and arrowBefore):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
         pygame.draw.rect(surface, (128, 0, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
@@ -333,15 +351,15 @@ class FireballBlock(CodeBlock):
     def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
-        return 0
+        opponenetBot.health -= self.damage_amount
 
 # Moss Leech Block.  Causes the Golem to cast Moss Leech, dealing natura damage on an opponent.
 class MossLeechBlock(CodeBlock):
-    def __init__(self):
+    def __init__(self, damage_amount):
         super(MossLeechBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("Cast Moss Leech at the enemy")
         self.fontRender = self.font.render("Cast Moss Leech at the enemy", 0, (255, 255, 255), (0, 128, 0))
-    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         if(self == selBlock and arrowBefore):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
         pygame.draw.rect(surface, (0, 128, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
@@ -352,15 +370,15 @@ class MossLeechBlock(CodeBlock):
     def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
-        return 0
+        opponentBot.health -= self.damage_amount
 
 # Douse Block.  Causes the Golem to cast Douse, dealing aqua damage on an opponent.
 class DouseBlock(CodeBlock):
-    def __init__(self):
+    def __init__(self, damage_amount):
         super(DouseBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("Cast Douse at the enemy")
         self.fontRender = self.font.render("Cast Douse at the enemy", 0, (255, 255, 255), (0, 0, 255))
-    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         if(self == selBlock and arrowBefore):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
         pygame.draw.rect(surface, (0, 0, 255), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
@@ -371,5 +389,5 @@ class DouseBlock(CodeBlock):
     def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
-        return 0
+        opponentBot.health -= self.damage_amount
 
