@@ -7,7 +7,9 @@ class CodingScene(scene.Scene):
         self.keysLastFrame = None
     def render(self, surface):
         surface.fill((0,0,0))
-        surface.blit(self.font.render("WIP", 0, (255, 255, 255), (0, 0, 0)), (25, 25))
+        top = 16
+        for block in self.char.list_of_bots[0].queue_of_code_blocks:
+            top += block.render(surface, 660, top) 
     def doKeys(self):
         keys = pygame.key.get_pressed()
         if kbInput.isBackPressed(keys) and not kbInput.isBackPressed(self.keysLastFrame):
