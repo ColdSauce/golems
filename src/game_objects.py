@@ -315,9 +315,10 @@ class IfOwnHealthBlock(CodeBlock):
 
 # Heal Block.  Causes the Golem to cast the Heal spell, restoring a certain amount of health not controlled by the program.
 class HealBlock(CodeBlock):
-    def __init__(self, heal_amount):
+    def __init__(self, heal_amount, mana_cost):
         super(HealBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("Cast Heal on myself")
+        self.mana_cost = mana_cost
         self.heal_amount = heal_amount
         self.fontRender = self.font.render("Cast Heal on myself", 0, (0, 0, 0), (255, 200, 200))
     def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
@@ -331,14 +332,18 @@ class HealBlock(CodeBlock):
     def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
+        if dryRun:
+            return (ownerBot.mana - self.mana_cost, False)
+        opponentBot.mana -= self.mana_cost
         ownerBot.health = (ownerBot.health + self.heal_amount) % 100
-        
 
 # Fireball Block.  Causes the Golem to cast Fireball, dealing ignis damage on an opponent.
 class FireballBlock(CodeBlock):
-    def __init__(self, damage_amount):
+    def __init__(self, damage_amount, mana_cost):
         super(FireballBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("Cast Fireball at the enemy")
+        self.mana_cost = mana_cost
+        self.damage_amount = damage_amount
         self.fontRender = self.font.render("Cast Fireball at the enemy", 0, (255, 255, 255), (128, 0, 0))
     def render(self, surface, xOffset = 0, yOffset = 0, selBlock =None, arrowBefore = False):
         if(self == selBlock and arrowBefore):
@@ -351,14 +356,19 @@ class FireballBlock(CodeBlock):
     def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
+        if dryRun:
+            return (ownerBot.mana - self.mana_cost, False)
+        opponentBot.mana -= self.mana_cost
         opponenetBot.health -= self.damage_amount
 
 # Moss Leech Block.  Causes the Golem to cast Moss Leech, dealing natura damage on an opponent.
 class MossLeechBlock(CodeBlock):
-    def __init__(self, damage_amount):
+    def __init__(self, damage_amount, mana_cost):
         super(MossLeechBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("Cast Moss Leech at the enemy")
         self.fontRender = self.font.render("Cast Moss Leech at the enemy", 0, (255, 255, 255), (0, 128, 0))
+        self.damage_amount = damage_amount
+        self.mana_cost = mana_cost
     def render(self, surface, xOffset = 0, yOffset = 0, selBlock = None, arrowBefore = False):
         if(self == selBlock and arrowBefore):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
@@ -370,14 +380,19 @@ class MossLeechBlock(CodeBlock):
     def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
+        if dryRun:
+            return (ownerBot.mana - self.mana_cost, False)
+        opponentBot.mana -= self.mana_cost
         opponentBot.health -= self.damage_amount
 
 # Douse Block.  Causes the Golem to cast Douse, dealing aqua damage on an opponent.
 class DouseBlock(CodeBlock):
-    def __init__(self, damage_amount):
+    def __init__(self, damage_amount, mana_cost):
         super(DouseBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("Cast Douse at the enemy")
         self.fontRender = self.font.render("Cast Douse at the enemy", 0, (255, 255, 255), (0, 0, 255))
+        self.damage_amount = damage_amount
+        self.mana_cost = mana_cost
     def render(self, surface, xOffset = 0, yOffset = 0, selBlock =None, arrowBefore = False):
         if(self == selBlock and arrowBefore):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
@@ -389,5 +404,8 @@ class DouseBlock(CodeBlock):
     def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
+        if dryRun:
+            return (ownerBot.mana - self.mana_cost, False)
+        opponentBot.mana -= self.mana_cost
         opponentBot.health -= self.damage_amount
 
