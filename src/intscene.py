@@ -26,21 +26,29 @@ class InteractiveScene(scene.Scene):
         some_test_list = []
         for x in range(0,10):
             some_test_list.append(game_objects.SayBlock())
-        self.enemy_player = game_objects.EnemyPlayer(name = "Example AI",
+        
+        
+        enemyLocations = self.map.getEnemyLocations()
+        numEnemies = len(enemyLocations)
+        for x in range(0, numEnemies):
+            position = enemyLocations[x]
+            xLoc = position[0]
+            yLoc = position[1]
+            self.enemy_player = game_objects.EnemyPlayer(name = "AI-" + str(x),
                                         load_function = pygame.image.load,
                                         list_of_bots = [game_objects.GenericBot("enemy's Bot", "res/main_player/up.png",queue_of_code_blocks = some_test_list,speed=8)],
                                         directional_sprites = ["res/main_player/up.png", 
                                                              "res/main_player/right.png", 
                                                              "res/main_player/down.png", 
                                                              "res/main_player/left.png"], 
-                                        x = 2,
-                                        y = 2)
+                                        x = xLoc,
+                                        y = yLoc)
+            
+            self.enemy_player.change_direction(self.enemy_player.current_direction, override_opt = True)
+            self.movable_characters.append(self.enemy_player)
 
         self.main_player.change_direction(self.main_player.current_direction, override_opt = True)
-        self.enemy_player.change_direction(self.enemy_player.current_direction, override_opt = True)
-
         self.movable_characters.append(self.main_player)
-        self.movable_characters.append(self.enemy_player)
         
         self.renderMenu = False
         self.keysLastFrame = None
