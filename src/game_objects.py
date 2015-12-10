@@ -104,9 +104,12 @@ class Spells:
 
 class CodeBlock(object):
     def __init__(self):
-        self.font = pygame.font.SysFont("comicsansms", 30)
+        self.font = pygame.font.SysFont("comicsansms", 24)
     # Renders the Block to the screen.  Should return the total height of the block.
-    def render(self, surface, xOffset = 0, yOffset = 0):
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+        raise NotImplementedError
+    # Gets the screen height of the block
+    def getRenderHeight(self):
         raise NotImplementedError
     # Executes the Block, taking into consideration whether or not this is a calc-mana-cost-only dry run.  Should return mana spent in total, or a tuple of (mana total, flag saying 'had hit an End Turn block').
     def execute(self, ownerBot, opponentBot, dryRun = False):
@@ -119,9 +122,13 @@ class CommentBlock(CodeBlock):
         self.comment = "";
         self.cwidth, self.cheight = self.font.size("# ")
         self.fontRender = self.font.render("# ", 0, (0, 0, 0), (190, 255, 190))
-    def render(self, surface, xOffset = 0, yOffset = 0):
-        pygame.draw.rect(surface, (190, 255, 190), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+        pygame.draw.rect(surface, (190, 255, 190), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(self == selBlock):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset + self.cheight + 4), (xOffset - 10, yOffset + self.cheight + 10), (xOffset, yOffset + self.cheight + 8)], 0)
+        return self.cheight + 8
+    def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0 # Comment blocks do nothing
@@ -137,9 +144,13 @@ class SayBlock(CodeBlock):
         self.message = "";
         self.cwidth, self.cheight = self.font.size("Say \"\"")
         self.fontRender = self.font.render("Say \"\"", 0, (0, 0, 0), (205, 205, 205))
-    def render(self, surface, xOffset = 0, yOffset = 0):
-        pygame.draw.rect(surface, (205, 205, 205), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+        pygame.draw.rect(surface, (205, 205, 205), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(self == selBlock):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset + self.cheight + 4), (xOffset - 10, yOffset + self.cheight + 10), (xOffset, yOffset + self.cheight + 8)], 0)
+        return self.cheight + 8
+    def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
@@ -155,14 +166,21 @@ class WhileBlock(CodeBlock):
         self.blocks = []
         _, self.cheight = self.font.size("WAAA")
         self.fontRender = self.font.render("Do Forever", 0, (0, 0, 0), (255, 255, 190))
-    def render(self, surface, xOffset = 0, yOffset = 0):
-        pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset, 128, self.cheight + 8))
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+        pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset + 1, 128, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
         heightsum = self.cheight + 8
         for block in self.blocks:
-            heightsum += block.render(surface, xOffset + 8, yOffset + heightsum)
-        pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset + heightsum, 128, self.cheight + 8))
-        pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset, 6, heightsum))
+            heightsum += block.render(surface, xOffset + 8, yOffset + heightsum, selBlock, arrowBefore)
+        pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset + 1 + heightsum, 128, self.cheight + 6))
+        pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset + 1, 6, heightsum - 2))
+        if(self == selBlock):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset + self.cheight + 4), (xOffset - 10, yOffset + self.cheight + 10), (xOffset, yOffset + self.cheight + 8)], 0)
+        return heightsum + self.cheight + 8
+    def getRenderHeight(self):
+        heightsum = self.cheight + 8
+        for i in range(0, size(trueBlocks)):
+            heightsum += trueBlocks[i].getRenderHeight()
         return heightsum + self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
@@ -182,9 +200,15 @@ class EndTurnBlock(CodeBlock):
         super(EndTurnBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("End my Turn")
         self.fontRender = self.font.render("End my Turn", 0, (0, 0, 0), (255, 64, 64))
-    def render(self, surface, xOffset = 0, yOffset = 0):
-        pygame.draw.rect(surface, (255, 64, 64), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+        if(self == selBlock and arrowBefore):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
+        pygame.draw.rect(surface, (255, 64, 64), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(self == selBlock and not arrowBefore):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset + self.cheight + 4), (xOffset - 10, yOffset + self.cheight + 10), (xOffset, yOffset + self.cheight + 8)], 0)
+        return self.cheight + 8
+    def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return (0, True)
@@ -199,19 +223,31 @@ class IfManaBlock(CodeBlock):
         self.cwidth, self.cheight = self.font.size("If I have more than 9999 Mana")
         self.fontRender = self.font.render("If I have more than 0 Mana", 0, (0, 0, 0), (128, 205, 255))
         self.elseRender = self.font.render("Otherwise", 0, (0, 0, 0), (128, 205, 255))
-    def render(self, surface, xOffset = 0, yOffset = 0):
-        pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+        if(self == selBlock and arrowBefore):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
+        pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
         heightsum = self.cheight + 8
         for i in range(0, size(trueBlocks)):
-            heightsum += trueBlocks[i].render(surface, xOffset + 8, yOffset + heightsum)
-        pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + heightsum, self.cwidth + 16, self.cheight + 8))
+            heightsum += trueBlocks[i].render(surface, xOffset + 8, yOffset + heightsum, selBlock, arrowBefore)
+        pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + 1 + heightsum, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.elseRender, (xOffset + 4, yOffset + heightsum + 4))
         heightsum += self.cheight + 8
         for i in range(0, size(elseBlocks)):
-            heightsum += falseBlocks[i].render(surface, xOffset + 8, yOffset + heightsum)
-        pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + heightsum, self.cwidth + 16, self.cheight + 8))
-        pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset, 6, heightsum))
+            heightsum += falseBlocks[i].render(surface, xOffset + 8, yOffset + heightsum, selBlock, arrowBefore)
+        pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + 1 + heightsum, self.cwidth + 16, self.cheight + 6))
+        pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + 1, 6, heightsum - 2))
+        if(self == selBlock and not arrowBefore):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset + self.cheight + 4), (xOffset - 10, yOffset + self.cheight + 10), (xOffset, yOffset + self.cheight + 8)], 0)
+        return heightsum + self.cheight + 8
+    def getRenderHeight(self):
+        heightsum = self.cheight + 8
+        for i in range(0, size(trueBlocks)):
+            heightsum += trueBlocks[i].getRenderHeight()
+        heightsum += self.cheight + 8
+        for i in range(0, size(trueBlocks)):
+            heightsum += falseBlocks[i].getRenderHeight()
         return heightsum + self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
@@ -229,19 +265,31 @@ class IfOwnHealthBlock(CodeBlock):
         self.cwidth, self.cheight = self.font.size("If I have less than 9999 Health")
         self.fontRender = self.font.render("If I have less than 0 Health", 0, (0, 0, 0), (255, 200, 200))
         self.elseRender = self.font.render("Otherwise", 0, (0, 0, 0), (255, 200, 200))
-    def render(self, surface, xOffset = 0, yOffset = 0):
-        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+        if(self == selBlock and arrowBefore):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
+        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 8))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
         heightsum = self.cheight + 8
         for i in range(0, size(trueBlocks)):
-            heightsum += trueBlocks[i].render(surface, xOffset + 8, yOffset + heightsum)
-        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + heightsum, self.cwidth + 16, self.cheight + 8))
+            heightsum += trueBlocks[i].render(surface, xOffset + 8, yOffset + heightsum, selBlock, arrowBefore)
+        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + 1 + heightsum, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.elseRender, (xOffset + 4, yOffset + heightsum + 4))
         heightsum += self.cheight + 8
         for i in range(0, size(elseBlocks)):
-            heightsum += falseBlocks[i].render(surface, xOffset + 8, yOffset + heightsum)
-        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + heightsum, self.cwidth + 16, self.cheight + 8))
-        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset, 6, heightsum))
+            heightsum += falseBlocks[i].render(surface, xOffset + 8, yOffset + heightsum, selBlock, arrowBefore)
+        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + 1 + heightsum, self.cwidth + 16, self.cheight + 6))
+        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + 1, 6, heightsum - 2))
+        if(self == selBlock and not arrowBefore):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset + self.cheight + 4), (xOffset - 10, yOffset + self.cheight + 10), (xOffset, yOffset + self.cheight + 8)], 0)
+        return heightsum + self.cheight + 8
+    def getRenderHeight(self):
+        heightsum = self.cheight + 8
+        for i in range(0, size(trueBlocks)):
+            heightsum += trueBlocks[i].getRenderHeight()
+        heightsum += self.cheight + 8
+        for i in range(0, size(trueBlocks)):
+            heightsum += falseBlocks[i].getRenderHeight()
         return heightsum + self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
@@ -255,9 +303,15 @@ class HealBlock(CodeBlock):
         super(HealBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("Cast Heal on myself")
         self.fontRender = self.font.render("Cast Heal on myself", 0, (0, 0, 0), (255, 200, 200))
-    def render(self, surface, xOffset = 0, yOffset = 0):
-        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+        if(self == selBlock and arrowBefore):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
+        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(self == selBlock and not arrowBefore):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset + self.cheight + 4), (xOffset - 10, yOffset + self.cheight + 10), (xOffset, yOffset + self.cheight + 8)], 0)
+        return self.cheight + 8
+    def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
@@ -268,9 +322,15 @@ class FireballBlock(CodeBlock):
         super(FireballBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("Cast Fireball at the enemy")
         self.fontRender = self.font.render("Cast Fireball at the enemy", 0, (255, 255, 255), (128, 0, 0))
-    def render(self, surface, xOffset = 0, yOffset = 0):
-        pygame.draw.rect(surface, (128, 0, 0), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+        if(self == selBlock and arrowBefore):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
+        pygame.draw.rect(surface, (128, 0, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(self == selBlock and not arrowBefore):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset + self.cheight + 4), (xOffset - 10, yOffset + self.cheight + 10), (xOffset, yOffset + self.cheight + 8)], 0)
+        return self.cheight + 8
+    def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
@@ -281,9 +341,15 @@ class MossLeechBlock(CodeBlock):
         super(MossLeechBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("Cast Moss Leech at the enemy")
         self.fontRender = self.font.render("Cast Moss Leech at the enemy", 0, (255, 255, 255), (0, 128, 0))
-    def render(self, surface, xOffset = 0, yOffset = 0):
-        pygame.draw.rect(surface, (0, 128, 0), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+        if(self == selBlock and arrowBefore):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
+        pygame.draw.rect(surface, (0, 128, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(self == selBlock and not arrowBefore):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset + self.cheight + 4), (xOffset - 10, yOffset + self.cheight + 10), (xOffset, yOffset + self.cheight + 8)], 0)
+        return self.cheight + 8
+    def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
@@ -294,9 +360,15 @@ class DouseBlock(CodeBlock):
         super(DouseBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("Cast Douse at the enemy")
         self.fontRender = self.font.render("Cast Douse at the enemy", 0, (255, 255, 255), (0, 0, 255))
-    def render(self, surface, xOffset = 0, yOffset = 0):
-        pygame.draw.rect(surface, (0, 0, 255), (xOffset, yOffset, self.cwidth + 16, self.cheight + 8))
+    def render(self, surface, xOffset = 0, yOffset = 0, selBlock = nil, arrowBefore = False):
+        if(self == selBlock and arrowBefore):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset - 4), (xOffset - 10, yOffset + 2), (xOffset, yOffset)], 0)
+        pygame.draw.rect(surface, (0, 0, 255), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(self == selBlock and not arrowBefore):
+            pygame.draw.polygon(surface, (255, 255, 255), [(xOffset - 10, yOffset + self.cheight + 4), (xOffset - 10, yOffset + self.cheight + 10), (xOffset, yOffset + self.cheight + 8)], 0)
+        return self.cheight + 8
+    def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, dryRun = False):
         return 0
