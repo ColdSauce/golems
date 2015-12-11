@@ -93,7 +93,7 @@ class CodingScene(scene.Scene):
                 self.blockMenu = False
                 self.menuIndex = 0
             if kbInput.isDownPressed(keys) and not kbInput.isDownPressed(self.keysLastFrame):
-                self.menuIndex = min(self.menuIndex + 1, 10)
+                self.menuIndex = min(self.menuIndex + 1, 11)
             if kbInput.isUpPressed(keys) and not kbInput.isUpPressed(self.keysLastFrame):
                 self.menuIndex = max(self.menuIndex - 1, 0)
             if kbInput.isOkayPressed(keys) and not kbInput.isOkayPressed(self.keysLastFrame):
@@ -108,17 +108,17 @@ class CodingScene(scene.Scene):
                 elif(self.menuIndex == 4):
                     self.insert(game_objects.WhileBlock())
                 elif(self.menuIndex == 5):
-                    self.insert(game_objects.IfOwnManaBlock())
+                    self.insert(game_objects.IfManaBlock())
                 elif(self.menuIndex == 6):
                     self.insert(game_objects.IfOwnHealthBlock())
                 elif(self.menuIndex == 7):
-                    self.insert(game_objects.HealBlock(20))
+                    self.insert(game_objects.HealBlock(20, 15))
                 elif(self.menuIndex == 8):
-                    self.insert(game_objects.FireballBlock(10))
+                    self.insert(game_objects.FireballBlock(10, 15))
                 elif(self.menuIndex == 9):
-                    self.insert(game_objects.MossLeechBlock(10))
+                    self.insert(game_objects.MossLeechBlock(10, 15))
                 elif(self.menuIndex == 10):
-                    self.insert(game_objects.DouseBlock(10))
+                    self.insert(game_objects.DouseBlock(10, 15))
                 elif(self.menuIndex == 11):
                     self.insert(game_objects.EndTurnBlock())
                 
@@ -135,7 +135,7 @@ class CodingScene(scene.Scene):
         self.keysLastFrame = keys
     def insert(self, block):
         if(self.currentArrowIndex == 0):  # Insert block at beginning of list
-            self.char.list_of_bots[0].queue_of_code_blocks.append(block)
+            self.char.list_of_bots[0].queue_of_code_blocks.insert(0, block)
         else:  # Insert somewhere in list
             currArrowIndex = self.currentArrowIndex - 1
             for i in range(0, len(self.char.list_of_bots[0].queue_of_code_blocks)):
