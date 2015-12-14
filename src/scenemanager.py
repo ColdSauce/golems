@@ -20,6 +20,9 @@ class SceneManager():
                 self.scenes[sNum] = battlescene.BattleScene(specArgs['c1'],specArgs['c2'])
             elif sNum is scene.Scenes.CODING:
                 self.scenes[sNum] = codingscene.CodingScene(specArgs['plyr'])
+        else: #scene has been created, but certain scenes still need special args.
+            if sNum is scene.Scenes.BATTLE:
+                self.scenes[sNum].sendToBattle(specArgs['c1'],specArgs['c2'])
 
         self.scenes[sNum].manager = self
         self.scene = self.scenes[sNum]

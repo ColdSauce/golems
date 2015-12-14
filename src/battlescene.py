@@ -1,25 +1,27 @@
-import pygame, kbInput, game_objects, scene
+import pygame, kbInput, game_objects, scene, uimgr
 
 class BattleScene(scene.Scene):
     
     def __init__(self, char1, char2):
-        #self.spell_rect1 = self.SpellRect(100,100,width,height,char1, 0)
-        #self.spell_rect2 = self.SpellRect(200 + width, 100, width,height,char2,0)
-        #self.ui_rect = self.UIRect(2 * width  + 300, 100, width,height, char1,char2)
         self.grid = self.makeGrid()
         self.char1 = char1
         self.char2 = char2
         self.startBattle()
+        self.UI = uimgr.UIManager()
+        
+        testEle = self.UI.UIElement((100,100,250,250),borderColor = (0,255,0))
+        self.UI.addElement(testEle,"test")
+
+        textTest = self.UI.TextElement((100,100),"This is a test",(255,0,0),30)
+        self.UI.addElement(textTest,"text")
        
     def render(self,surface):
         surface.fill((150,150,150)) # bg color
         pygame.draw.rect(surface,(100,100,100),(0,0,1200,450)) # wall color + size
         surface.blit(self.grid,(0,300))
         self.drawBots(surface)
-        #self.spell_rect1.render(surface)
-        #self.spell_rect2.render(surface)
-        #self.ui_rect.render(surface)
- 
+
+        self.UI.render(surface) 
         
     def handle_events(self, events):
         pass
@@ -78,6 +80,10 @@ class BattleScene(scene.Scene):
         
         bot.location = [newX,newY] # all bots know their location when in battle
             
+    def sendToBattle(self, c1, c2):
+        self.char1 = c1
+        self.char2 = c2
+        startBattle()
 
     def startBattle(self):
         self.c1Bots = self.char1.list_of_bots
@@ -149,11 +155,30 @@ class BattleScene(scene.Scene):
             if y is 0 : xSpec2 = 0
             if y is 1 : xSpec2 = xSpec2/2                    
             
+            xLoc = None
             if bot.pOwned is True:
-                surface.blit(testBot,(baseX+xInc*x+xSpec,height))
+                xLoc = baseX+xInc*x+xSpec
+                surface.blit(testBot,(xLoc,height))
+                
             else:
-                surface.blit(testBot,(baseX+370+xInc*x-xSpec2,height))
+                xLoc = baseX+370+xInc*x-xSpec2
+                surface.blit(testBot,(xLoc,height))
+            self.drawHPBar(surface,bot,xLoc,height)
+
     #end drawBots
+
+    def drawHPBar(self,surface,bot,x,y):
+        bgColor = (0,0,0)
+        hpColor = (255,0,0)
+        adj = 20 #Horiz adjustment      
+        b = 5  #Border 
+        w = 40 #Width
+        h = 15 #Height
+
+        bgRect = (x+adj-b,y-b,w+b*2,h+b*2)
+        hpRect = (x+adj,y,w,h)
+        pygame.draw.rect(surface, bgColor, bgRect)
+        pygame.draw.rect(surface, hpColor, hpRect)
 
     #called once in init, the return value is stored in self.grid 
     def makeGrid(self):
