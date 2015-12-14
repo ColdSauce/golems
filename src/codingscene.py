@@ -143,21 +143,22 @@ class CodingScene(scene.Scene):
         #pdb.set_trace()
         if(self.currentArrowIndex == 0):  # Insert block at beginning of list
             self.char.list_of_bots[0].queue_of_code_blocks.insert(0, block)
+            return True
         elif(self.currentArrowIndex == self.totalArrowCount):  # Append block to end of list
             self.char.list_of_bots[0].queue_of_code_blocks.append(block)
+            return True
         else:  # Insert somewhere in list
             currArrowIndex = self.currentArrowIndex
             for i in range(0, len(self.char.list_of_bots[0].queue_of_code_blocks)):
                 if(currArrowIndex == 0):
                     self.char.list_of_bots[0].queue_of_code_blocks.insert(i, block)
-                    return
+                    return True
                 elif(self.char.list_of_bots[0].queue_of_code_blocks[i].insert(block, currArrowIndex)):
-                    return
+                    return True
                 else:
                     currArrowIndex -= self.char.list_of_bots[0].queue_of_code_blocks[i].getArrowCount()
             print("Failed to insert a new block at insertion point " + str(self.currentArrowIndex))
             return False
-        return True
     def update(self):
         self.totalArrowCount = 0
         for block in self.char.list_of_bots[0].queue_of_code_blocks:
