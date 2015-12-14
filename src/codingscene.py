@@ -1,4 +1,4 @@
-import scene, game_objects, kbInput, pygame
+import scene, game_objects, kbInput, pygame, pdb
 
 class CodingScene(scene.Scene):
     def __init__(self, mainChar):
@@ -19,6 +19,8 @@ class CodingScene(scene.Scene):
         for block in self.char.list_of_bots[0].queue_of_code_blocks:
             top += block.render(surface, 16, top, arrIndex) 
             arrIndex -= block.getArrowCount()
+        if(arrIndex == 0):
+            pygame.draw.polygon(surface, (255, 255, 255), [(16, top + 1), (16 - 10, top + 6), (16 - 10, top), (16 + 512 + 26, top), (16 + 512 + 26, top + 6), (16 + 512 + 16, top + 1)])
         if(self.blockMenu):
             pygame.draw.rect(surface, (0, 230, 180), (width - 266, 10, 256, 512))
             menuItem = self.font.render("MODIFY BLOCK", 0, (0, 0, 0), (0, 230, 180))
@@ -101,52 +103,61 @@ class CodingScene(scene.Scene):
                     pass # Implement "modify block" later
                 elif(self.menuIndex == 1):
                     pass # Implement "remove block" later
-                elif(self.menuIndex == 2):
-                    self.insert(game_objects.CommentBlock())
-                elif(self.menuIndex == 3):
-                    self.insert(game_objects.SayBlock())
-                elif(self.menuIndex == 4):
-                    self.insert(game_objects.WhileBlock())
-                elif(self.menuIndex == 5):
-                    self.insert(game_objects.IfManaBlock())
-                elif(self.menuIndex == 6):
-                    self.insert(game_objects.IfOwnHealthBlock())
-                elif(self.menuIndex == 7):
-                    self.insert(game_objects.HealBlock(20, 15))
-                elif(self.menuIndex == 8):
-                    self.insert(game_objects.FireballBlock(10, 15))
-                elif(self.menuIndex == 9):
-                    self.insert(game_objects.MossLeechBlock(10, 15))
-                elif(self.menuIndex == 10):
-                    self.insert(game_objects.DouseBlock(10, 15))
-                elif(self.menuIndex == 11):
-                    self.insert(game_objects.EndTurnBlock())
+                else:
+                    newBlock = None
+                    if(self.menuIndex == 2):
+                        newBlock = game_objects.CommentBlock()
+                    elif(self.menuIndex == 3):
+                        newBlock = game_objects.SayBlock()
+                    elif(self.menuIndex == 4):
+                        newBlock = game_objects.WhileBlock()
+                    elif(self.menuIndex == 5):
+                        newBlock = game_objects.IfManaBlock()
+                    elif(self.menuIndex == 6):
+                        newBlock = game_objects.IfOwnHealthBlock()
+                    elif(self.menuIndex == 7):
+                        newBlock = game_objects.HealBlock(20, 15)
+                    elif(self.menuIndex == 8):
+                        newBlock = game_objects.FireballBlock(10, 15)
+                    elif(self.menuIndex == 9):
+                        newBlock = game_objects.MossLeechBlock(10, 15)
+                    elif(self.menuIndex == 10):
+                        newBlock = game_objects.DouseBlock(10, 15)
+                    elif(self.menuIndex == 11):
+                        newBlock = game_objects.EndTurnBlock()
+                    if(self.insert(newBlock)):
+                        self.currentArrowIndex += 1
                 
         else:
             if kbInput.isBackPressed(keys) and not kbInput.isBackPressed(self.keysLastFrame):
                 self.manager.go_to(scene.Scenes.INTERACTIVE)
                 self.currentArrowIndex = 0
             if kbInput.isDownPressed(keys) and not kbInput.isDownPressed(self.keysLastFrame):
-                self.currentArrowIndex = min(self.currentArrowIndex + 1, self.totalArrowCount - 1)
+                self.currentArrowIndex = min(self.currentArrowIndex + 1, self.totalArrowCount)
             if kbInput.isUpPressed(keys) and not kbInput.isUpPressed(self.keysLastFrame):
                 self.currentArrowIndex = max(self.currentArrowIndex - 1, 0)
             if kbInput.isMenuPressed(keys) and not kbInput.isMenuPressed(self.keysLastFrame):
                 self.blockMenu = True
         self.keysLastFrame = keys
     def insert(self, block):
+        #pdb.set_trace()
         if(self.currentArrowIndex == 0):  # Insert block at beginning of list
             self.char.list_of_bots[0].queue_of_code_blocks.insert(0, block)
+        elif(self.currentArrowIndex == self.totalArrowCount):  # Append block to end of list
+            self.char.list_of_bots[0].queue_of_code_blocks.append(block)
         else:  # Insert somewhere in list
-            currArrowIndex = self.currentArrowIndex - 1
+            currArrowIndex = self.currentArrowIndex
             for i in range(0, len(self.char.list_of_bots[0].queue_of_code_blocks)):
                 if(currArrowIndex == 0):
-                    self.char.list_of_bots[0].queue_of_code_blocks.insert(i, blockToInsert)
+                    self.char.list_of_bots[0].queue_of_code_blocks.insert(i, block)
                     return
-                elif(self.char.list_of_bots[0].queue_of_code_blocks[i].insert(blockToInsert, currArrowIndex)):
+                elif(self.char.list_of_bots[0].queue_of_code_blocks[i].insert(block, currArrowIndex)):
                     return
                 else:
                     currArrowIndex -= self.char.list_of_bots[0].queue_of_code_blocks[i].getArrowCount()
+            print("Failed to insert a new block at insertion point " + str(self.currentArrowIndex))
             return False
+        return True
     def update(self):
         self.totalArrowCount = 0
         for block in self.char.list_of_bots[0].queue_of_code_blocks:
