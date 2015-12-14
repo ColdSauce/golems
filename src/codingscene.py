@@ -7,6 +7,7 @@ class CodingScene(scene.Scene):
         self.keysLastFrame = None
         self.selIndex = 0
         self.totalArrowCount = 0
+        self.totalBlockCount = 0
         self.mode = 0
         self.blockMenu = False
         self.menuIndex = 0
@@ -18,9 +19,9 @@ class CodingScene(scene.Scene):
         top = 16
         arrIndex = self.selIndex
         for block in self.char.list_of_bots[0].queue_of_code_blocks:
-            top += block.render(surface, 16, top, arrIndex) #, self.mode)
+            top += block.render(surface, 16, top, arrIndex, self.mode)
             arrIndex -= block.getArrowCount()
-        if(arrIndex == 0):
+        if(self.mode == 0 and arrIndex == 0):
             pygame.draw.polygon(surface, (255, 255, 255), [(16, top + 1), (16 - 10, top + 6), (16 - 10, top), (16 + 512 + 26, top), (16 + 512 + 26, top + 6), (16 + 512 + 16, top + 1)])
         if(self.blockMenu):
             pygame.draw.rect(surface, (0, 230, 180), (width - 266, 10, 256, 512))
@@ -101,6 +102,27 @@ class CodingScene(scene.Scene):
             elif(self.mode == 2):
                 menuItem = self.font.render("REMOVE BLOCK", 0, (0, 0, 0), (0, 230, 180))
                 surface.blit(menuItem, (width - 221, top))
+                top += 30
+                if(self.menuIndex == 3):
+                    pygame.draw.polygon(surface, (0, 0, 0), [(width - 148, top), (width - 128, top), (width - 138, top + 12)], 4)
+                else:
+                    pygame.draw.polygon(surface, (128, 128, 128), [(width - 148, top), (width - 128, top), (width - 138, top + 12)])
+                top += 20
+                if(self.menuIndex == 4):
+                    pygame.draw.polygon(surface, (0, 0, 0), [(width - 148, top), (width - 128, top), (width - 138, top + 12)], 4)
+                else:
+                    pygame.draw.polygon(surface, (128, 128, 128), [(width - 148, top), (width - 128, top), (width - 138, top + 12)])
+                top += 20
+                if(self.menuIndex == 5):
+                    pygame.draw.polygon(surface, (0, 0, 0), [(width - 148, top), (width - 128, top), (width - 138, top + 12)], 4)
+                else:
+                    pygame.draw.polygon(surface, (128, 128, 128), [(width - 148, top), (width - 128, top), (width - 138, top + 12)])
+                top += 20
+                menuItem = self.font.render("Yes, Remove!", 0, (0, 0, 0), (0, 230, 180))
+                surface.blit(menuItem, (width - 221, top))
+                if(self.menuIndex == 6):
+                    pygame.draw.polygon(surface, (0, 0, 0), [(width - 241, top), (width - 241, top + 24), (width - 235, top + 12)], 4)
+                    
     def doKeys(self):
         keys = pygame.key.get_pressed()
         if(self.blockMenu):
@@ -113,7 +135,7 @@ class CodingScene(scene.Scene):
                 elif(self.mode == 1):
                     self.menuIndex = min(self.menuIndex + 1, 3)
                 elif(self.mode == 2):
-                    self.menuIndex = min(self.menuIndex + 1, 3)
+                    self.menuIndex = min(self.menuIndex + 1, 6)
             if kbInput.isUpPressed(keys) and not kbInput.isUpPressed(self.keysLastFrame):
                 self.menuIndex = max(self.menuIndex - 1, 0)
             if kbInput.isOkayPressed(keys) and not kbInput.isOkayPressed(self.keysLastFrame):
@@ -148,13 +170,20 @@ class CodingScene(scene.Scene):
                             newBlock = game_objects.EndTurnBlock()
                         if(self.insert(newBlock)):
                             self.selIndex += 1
-                
+                    elif(self.mode == 1):
+                        pass # Do modify here
+                    elif(self.mode == 2):
+                        if(self.menuIndex == 6):
+                            self.remove()
         else:
             if kbInput.isBackPressed(keys) and not kbInput.isBackPressed(self.keysLastFrame):
                 self.manager.go_to(scene.Scenes.INTERACTIVE)
                 self.selIndex = 0
             if kbInput.isDownPressed(keys) and not kbInput.isDownPressed(self.keysLastFrame):
-                self.selIndex = min(self.selIndex + 1, self.totalArrowCount)
+                if(self.mode == 0):
+                    self.selIndex = min(self.selIndex + 1, self.totalArrowCount)
+                else:
+                    self.selIndex = min(self.selIndex + 1, self.totalBlockCount - 1)
             if kbInput.isUpPressed(keys) and not kbInput.isUpPressed(self.keysLastFrame):
                 self.selIndex = max(self.selIndex - 1, 0)
             if kbInput.isMenuPressed(keys) and not kbInput.isMenuPressed(self.keysLastFrame):
@@ -180,10 +209,23 @@ class CodingScene(scene.Scene):
                     currArrowIndex -= self.char.list_of_bots[0].queue_of_code_blocks[i].getArrowCount()
             print("Failed to insert a new block at insertion point " + str(self.selIndex))
             return False
+    def remove(self):
+        currSel = self.selIndex
+        
+        for i in range(0, len(self.char.list_of_bots[0].queue_of_code_blocks)):
+            if(currSel == 0):
+                del self.char.list_of_bots[0].queue_of_code_blocks[i]
+                return True
+            elif(self.char.list_of_bots[0].queue_of_code_blocks[i].remove(currSel)):
+                return True
+            else:
+                currSel -= self.char.list_of_bots[0].queue_of_code_blocks[i].getBlockCount()
     def update(self):
         self.totalArrowCount = 0
+        self.totalBlockCount = 0
         for block in self.char.list_of_bots[0].queue_of_code_blocks:
             self.totalArrowCount += block.getArrowCount()
+            self.totalBlockCount += block.getBlockCount()
         self.doKeys()
     def handle_events(self, events):
         for event in events:

@@ -106,7 +106,7 @@ class CodeBlock(object):
     def __init__(self):
         self.font = pygame.font.SysFont("comicsansms", 24)
     # Renders the Block to the screen.  Should return the total height of the block.
-    def render(self, surface, xOffset = 0, yOffset = 0, renderArrowCnt = -1):
+    def render(self, surface, xOffset = 0, yOffset = 0, selIndex = -1, mode = -1):
         raise NotImplementedError
     # Gets the screen height of the block
     def getRenderHeight(self):
@@ -114,11 +114,17 @@ class CodeBlock(object):
     # Gets the count of arrow positions within this block (typically only the one after it)
     def getArrowCount(self):
         return 1
+    # Gets the total block count within this block (typically just the one)
+    def getBlockCount(self):
+        return 1
     # Executes the Block, taking into consideration whether or not this is a calc-mana-cost-only dry run.  Should return mana spent in total, or a tuple of (mana total, flag saying 'had hit an End Turn block').
     def execute(self, ownerBot, opponentBot, dryRun = False):
         pass
     # Inserts a new Block somewhere in the listing.  True if successful, false if failed; block containers should implement something other than "always fail"
     def insert(self, blockToInsert, arrowIndex):
+        return False
+    # Removes the Block at the specific index inside this Block.  True if successful, false if failed; block containers should implement something other than "always fail"
+    def remove(self, index):
         return False
 
 # Comment Block.  Does nothing, handy for in-code notes.
@@ -128,11 +134,15 @@ class CommentBlock(CodeBlock):
         self.comment = "";
         self.cwidth, self.cheight = self.font.size("# ")
         self.fontRender = self.font.render("# ", 0, (0, 0, 0), (190, 255, 190))
-    def render(self, surface, xOffset = 0, yOffset = 0, renderArrowCnt = -1):
-        if(renderArrowCnt == 0):
+    def render(self, surface, xOffset = 0, yOffset = 0, selIndex = -1, mode = -1):
+        if(mode == 0 and selIndex == 0):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + 1), (xOffset - 10, yOffset + 6), (xOffset - 10, yOffset), (xOffset + self.cwidth + 26, yOffset), (xOffset + self.cwidth + 26, yOffset + 6), (xOffset + self.cwidth + 16, yOffset + 1)])
         pygame.draw.rect(surface, (190, 255, 190), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(mode == 1 and selIndex == 0):
+            pygame.draw.rect(surface, (128, 110, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6), 2)
+        if(mode == 2 and selIndex == 0):
+            pygame.draw.rect(surface, (255, 0, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6), 2)
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
@@ -150,11 +160,15 @@ class SayBlock(CodeBlock):
         self.message = "";
         self.cwidth, self.cheight = self.font.size("Say \"\"")
         self.fontRender = self.font.render("Say \"\"", 0, (0, 0, 0), (205, 205, 205))
-    def render(self, surface, xOffset = 0, yOffset = 0, renderArrowCnt = -1):
-        if(renderArrowCnt == 0):
+    def render(self, surface, xOffset = 0, yOffset = 0, selIndex = -1, mode = -1):
+        if(mode == 0 and selIndex == 0):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + 1), (xOffset - 10, yOffset + 6), (xOffset - 10, yOffset), (xOffset + self.cwidth + 26, yOffset), (xOffset + self.cwidth + 26, yOffset + 6), (xOffset + self.cwidth + 16, yOffset + 1)])
         pygame.draw.rect(surface, (205, 205, 205), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(mode == 1 and selIndex == 0):
+            pygame.draw.rect(surface, (128, 110, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6), 2)
+        if(mode == 2 and selIndex == 0):
+            pygame.draw.rect(surface, (255, 0, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6), 2)
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
@@ -173,25 +187,37 @@ class WhileBlock(CodeBlock):
         self.blocks = []
         _, self.cheight = self.font.size("WAAA")
         self.fontRender = self.font.render("Do Forever", 0, (0, 0, 0), (255, 255, 190))
-    def render(self, surface, xOffset = 0, yOffset = 0, renderArrowCnt = -1):
-        if(renderArrowCnt == 0):
+    def render(self, surface, xOffset = 0, yOffset = 0, selIndex = -1, mode = -1):
+        if(mode == 0 and selIndex == 0):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + 1), (xOffset - 10, yOffset + 6), (xOffset - 10, yOffset), (xOffset + 196 + 26, yOffset), (xOffset + 196 + 26, yOffset + 6), (xOffset + 196 + 16, yOffset + 1)])
         pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset + 1, 196, self.cheight + 6))
         heightsum = self.cheight + 8
-        arrowCnt = 1
+        selCount = 1
         for block in self.blocks:
-            heightsum += block.render(surface, xOffset + 8, yOffset + heightsum, renderArrowCnt - arrowCnt)
-            arrowCnt += block.getArrowCount()
-        if(renderArrowCnt == arrowCnt):
+            heightsum += block.render(surface, xOffset + 8, yOffset + heightsum, selIndex - selCount, mode)
+            if(mode == 0):
+                selCount += block.getArrowCount()
+            else:
+                selCount += block.getBlockCount()
+        if(mode == 0 and selIndex == selCount):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + heightsum + 1), (xOffset - 10, yOffset + 6 + heightsum), (xOffset - 10, yOffset + heightsum), (xOffset + 196 + 26, yOffset + heightsum), (xOffset + 196 + 26, yOffset + 6 + heightsum), (xOffset + 196 + 16, yOffset + heightsum + 1)])
         pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset + 1 + heightsum, 196, self.cheight + 6))
         pygame.draw.rect(surface, (255, 255, 190), (xOffset, yOffset + 1, 6, heightsum + self.cheight + 8 - 2))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(mode == 1 and selIndex == 0):
+            pygame.draw.rect(surface, (128, 110, 0), (xOffset, yOffset + 1, 196, heightsum + self.cheight + 6), 2)
+        if(mode == 2 and selIndex == 0):
+            pygame.draw.rect(surface, (255, 0, 0), (xOffset, yOffset + 1, 196, heightsum + self.cheight + 6), 2)
         return heightsum + self.cheight + 8
     def getArrowCount(self):
         rtn = 2
         for block in self.blocks:
             rtn += block.getArrowCount()
+        return rtn
+    def getBlockCount(self):
+        rtn = 1
+        for block in self.blocks:
+            rtn += block.getBlockCount()
         return rtn
     def getRenderHeight(self):
         heightsum = self.cheight + 8
@@ -206,8 +232,10 @@ class WhileBlock(CodeBlock):
             return False  # Should have been handled by calling function 
         elif(arrowIndex == 1):  # Insert before rest of list
             self.blocks = [blockToInsert] + self.blocks
+            return True
         elif(arrowIndex == self.getArrowCount() - 1):  # Insert at end of list
             self.blocks.append(blockToInsert)
+            return True
         else:  # Insert into middle of list
             currArrowIndex = arrowIndex - 1;
             for i in range(0, len(self.blocks)):
@@ -218,6 +246,20 @@ class WhileBlock(CodeBlock):
                     return True
                 else:
                     currArrowIndex -= self.blocks[i].getArrowCount()
+            return False
+    def remove(self, index):
+        if(index == 0):  # Remove current block
+            return False  # Should have been handled by calling function
+        else:
+            currIndex = index - 1;
+            for i in range(0, len(self.blocks)):
+                if(currIndex == 0):
+                    del self.blocks[i]
+                    return True
+                elif(self.blocks[i].remove(currIndex)):
+                    return True
+                else:
+                    currIndex -= self.blocks[i].getBlockCount()
             return False
 
 # For Block.  Performs a task on each Golem being faced.  Do not implement, only doing 1v1 battles atm.
@@ -235,11 +277,15 @@ class EndTurnBlock(CodeBlock):
         super(EndTurnBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("End my Turn")
         self.fontRender = self.font.render("End my Turn", 0, (0, 0, 0), (255, 64, 64))
-    def render(self, surface, xOffset = 0, yOffset = 0, renderArrowCnt = -1):
-        if(renderArrowCnt == 0):
+    def render(self, surface, xOffset = 0, yOffset = 0, selIndex = -1, mode = -1):
+        if(mode == 0 and selIndex == 0):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + 1), (xOffset - 10, yOffset + 6), (xOffset - 10, yOffset), (xOffset + self.cwidth + 26, yOffset), (xOffset + self.cwidth + 26, yOffset + 6), (xOffset + self.cwidth + 16, yOffset + 1)])
         pygame.draw.rect(surface, (255, 64, 64), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(mode == 1 and selIndex == 0):
+            pygame.draw.rect(surface, (128, 110, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6), 2)
+        if(mode == 2 and selIndex == 0):
+            pygame.draw.rect(surface, (255, 0, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6), 2)
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
@@ -256,30 +302,41 @@ class IfManaBlock(CodeBlock):
         self.cwidth, self.cheight = self.font.size("If I have more than 9999 Mana")
         self.fontRender = self.font.render("If I have more than 0 Mana", 0, (0, 0, 0), (128, 205, 255))
         self.elseRender = self.font.render("Otherwise", 0, (0, 0, 0), (128, 205, 255))
-    def render(self, surface, xOffset = 0, yOffset = 0, renderArrowCnt = -1):
-        if(renderArrowCnt == 0):
+    def render(self, surface, xOffset = 0, yOffset = 0, selIndex = -1, mode = -1):
+        if(mode == 0 and selIndex == 0):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + 1), (xOffset - 10, yOffset + 6), (xOffset - 10, yOffset), (xOffset + self.cwidth + 26, yOffset), (xOffset + self.cwidth + 26, yOffset + 6), (xOffset + self.cwidth + 16, yOffset + 1)])
         pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         heightsum = self.cheight + 8
-        arrowCnt = 1
+        selCount = 1
         for i in range(0, len(self.trueBlocks)):
-            heightsum += self.trueBlocks[i].render(surface, xOffset + 8, yOffset + heightsum, renderArrowCnt - arrowCnt)
-            arrowCnt += self.trueBlocks[i].getArrowCount()
-        if(renderArrowCnt == arrowCnt):
+            heightsum += self.trueBlocks[i].render(surface, xOffset + 8, yOffset + heightsum, selIndex - selCount, mode)
+            if(mode == 0):
+                selCount += self.trueBlocks[i].getArrowCount()
+            else:
+                selCount += self.trueBlocks[i].getBlockCount()
+        if(mode == 0 and selIndex == selCount):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + heightsum + 1), (xOffset - 10, yOffset + 6 + heightsum), (xOffset - 10, yOffset + heightsum), (xOffset + self.cwidth + 26, yOffset + heightsum), (xOffset + self.cwidth + 26, yOffset + 6 + heightsum), (xOffset + self.cwidth + 16, yOffset + heightsum + 1)])
-        arrowCnt += 1
+        if(mode == 0):
+            selCount += 1
         pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + 1 + heightsum, self.cwidth + 16, self.cheight + 6))
         secondBlitHeight = heightsum
         heightsum += self.cheight + 8
         for i in range(0, len(self.falseBlocks)):
-            heightsum += self.falseBlocks[i].render(surface, xOffset + 8, yOffset + heightsum, renderArrowCnt - arrowCnt)
-            arrowCnt += self.falseBlocks[i].getArrowCount()
-        if(renderArrowCnt == arrowCnt):
+            heightsum += self.falseBlocks[i].render(surface, xOffset + 8, yOffset + heightsum, selIndex - selCount, mode)
+            if(mode == 0):
+                selCount += self.trueBlocks[i].getArrowCount()
+            else:
+                selCount += self.trueBlocks[i].getBlockCount()
+        if(mode == 0 and selIndex == selCount):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + heightsum + 1), (xOffset - 10, yOffset + 6 + heightsum), (xOffset - 10, yOffset + heightsum), (xOffset + self.cwidth + 26, yOffset + heightsum), (xOffset + self.cwidth + 26, yOffset + 6 + heightsum), (xOffset + self.cwidth + 16, yOffset + heightsum + 1)])
         pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + 1 + heightsum, self.cwidth + 16, self.cheight + 6))
         pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + 1, 6, heightsum + self.cheight + 8 - 2))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
         surface.blit(self.elseRender, (xOffset + 4, yOffset + secondBlitHeight + 4))
+        if(mode == 1 and selIndex == 0):
+            pygame.draw.rect(surface, (128, 110, 0), (xOffset, yOffset + 1, self.cwidth + 16, heightsum + self.cheight + 6), 2)
+        if(mode == 2 and selIndex == 0):
+            pygame.draw.rect(surface, (255, 0, 0), (xOffset, yOffset + 1, self.cwidth + 16, heightsum + self.cheight + 6), 2)
         return heightsum + self.cheight + 8
     def getArrowCount(self):
         rtn = 3
@@ -287,6 +344,13 @@ class IfManaBlock(CodeBlock):
             rtn += block.getArrowCount()
         for block in self.falseBlocks:
             rtn += block.getArrowCount()
+        return rtn
+    def getBlockCount(self):
+        rtn = 1
+        for block in self.trueBlocks:
+            rtn += block.getBlockCount()
+        for block in self.falseBlocks:
+            rtn += block.getBlockCount()
         return rtn
     def getRenderHeight(self):
         heightsum = self.cheight + 8
@@ -333,6 +397,28 @@ class IfManaBlock(CodeBlock):
                 return True
             
             return False
+    def remove(self, index):
+        if(index == 0):  # Remove current block
+            return False  # Should have been handled by calling function
+        else:
+            currIndex = index - 1;
+            for i in range(0, len(self.trueBlocks)):
+                if(currIndex == 0):
+                    del self.trueBlocks[i]
+                    return True
+                elif(self.trueBlocks[i].remove(currIndex)):
+                    return True
+                else:
+                    currIndex -= self.trueBlocks[i].getBlockCount()
+            for i in range(0, len(self.falseBlocks)):
+                if(currIndex == 0):
+                    del self.falseBlocks[i]
+                    return True
+                elif(self.falseBlocks[i].remove(currIndex)):
+                    return True
+                else:
+                    currIndex -= self.falseBlocks[i].getBlockCount()
+            return False
 
     def setThresh(self, newThresh):
         self.mthresh = newThresh
@@ -348,30 +434,41 @@ class IfOwnHealthBlock(CodeBlock):
         self.cwidth, self.cheight = self.font.size("If I have less than 9999 Health")
         self.fontRender = self.font.render("If I have less than 0 Health", 0, (0, 0, 0), (255, 200, 200))
         self.elseRender = self.font.render("Otherwise", 0, (0, 0, 0), (255, 200, 200))
-    def render(self, surface, xOffset = 0, yOffset = 0, renderArrowCnt = -1):
-        if(renderArrowCnt == 0):
+    def render(self, surface, xOffset = 0, yOffset = 0, selIndex = -1, mode = -1):
+        if(mode == 0 and selIndex == 0):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + 1), (xOffset - 10, yOffset + 6), (xOffset - 10, yOffset), (xOffset + self.cwidth + 26, yOffset), (xOffset + self.cwidth + 26, yOffset + 6), (xOffset + self.cwidth + 16, yOffset + 1)])
         pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         heightsum = self.cheight + 8
-        arrowCnt = 1
+        selCount = 1
         for i in range(0, len(self.trueBlocks)):
-            heightsum += self.trueBlocks[i].render(surface, xOffset + 8, yOffset + heightsum)
-            arrowCnt += self.trueBlocks[i].getArrowCount()
-        if(renderArrowCnt == arrowCnt):
+            heightsum += self.trueBlocks[i].render(surface, xOffset + 8, yOffset + heightsum, selIndex - selCount, mode)
+            if(mode == 0):
+                selCount += self.trueBlocks[i].getArrowCount()
+            else:
+                selCount += self.trueBlocks[i].getBlockCount()
+        if(mode == 0 and selIndex == selCount):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + heightsum + 1), (xOffset - 10, yOffset + 6 + heightsum), (xOffset - 10, yOffset + heightsum), (xOffset + self.cwidth + 26, yOffset + heightsum), (xOffset + self.cwidth + 26, yOffset + 6 + heightsum), (xOffset + self.cwidth + 16, yOffset + heightsum + 1)])
-        arrowCnt += 1
+        if(mode == 0):
+            selCount += 1
         pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + 1 + heightsum, self.cwidth + 16, self.cheight + 6))
         secondBlitHeight = heightsum
         heightsum += self.cheight + 8
         for i in range(0, len(self.falseBlocks)):
-            heightsum += self.falseBlocks[i].render(surface, xOffset + 8, yOffset + heightsum)
-            arrowCnt += self.falseBlocks[i].getArrowCount()
-        if(renderArrowCnt == arrowCnt):
+            heightsum += self.falseBlocks[i].render(surface, xOffset + 8, yOffset + heightsum, selIndex - selCount, mode)
+            if(mode == 0):
+                selCount += self.trueBlocks[i].getArrowCount()
+            else:
+                selCount += self.trueBlocks[i].getBlockCount()
+        if(mode == 0 and selIndex == selCount):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + heightsum + 1), (xOffset - 10, yOffset + 6 + heightsum), (xOffset - 10, yOffset + heightsum), (xOffset + self.cwidth + 26, yOffset + heightsum), (xOffset + self.cwidth + 26, yOffset + 6 + heightsum), (xOffset + self.cwidth + 16, yOffset + heightsum + 1)])
         pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + 1 + heightsum, self.cwidth + 16, self.cheight + 6))
-        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + 1, 6, heightsum + self.cheight + 8 - 2))
+        pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + 1, 6, heightsum + self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
         surface.blit(self.elseRender, (xOffset + 4, yOffset + secondBlitHeight + 4))
+        if(mode == 1 and selIndex == 0):
+            pygame.draw.rect(surface, (128, 110, 0), (xOffset, yOffset + 1, self.cwidth + 16, heightsum + self.cheight + 6), 2)
+        if(mode == 2 and selIndex == 0):
+            pygame.draw.rect(surface, (255, 0, 0), (xOffset, yOffset + 1, self.cwidth + 16, heightsum + self.cheight + 6), 2)
         return heightsum + self.cheight + 8
     def getArrowCount(self):
         rtn = 3
@@ -379,6 +476,13 @@ class IfOwnHealthBlock(CodeBlock):
             rtn += block.getArrowCount()
         for block in self.falseBlocks:
             rtn += block.getArrowCount()
+        return rtn
+    def getBlockCount(self):
+        rtn = 1
+        for block in self.trueBlocks:
+            rtn += block.getBlockCount()
+        for block in self.falseBlocks:
+            rtn += block.getBlockCount()
         return rtn
     def getRenderHeight(self):
         heightsum = self.cheight + 8
@@ -425,6 +529,28 @@ class IfOwnHealthBlock(CodeBlock):
                 return True
             
             return False
+    def remove(self, index):
+        if(index == 0):  # Remove current block
+            return False  # Should have been handled by calling function
+        else:
+            currIndex = index - 1;
+            for i in range(0, len(self.trueBlocks)):
+                if(currIndex == 0):
+                    del self.trueBlocks[i]
+                    return True
+                elif(self.trueBlocks[i].remove(currIndex)):
+                    return True
+                else:
+                    currIndex -= self.trueBlocks[i].getBlockCount()
+            for i in range(0, len(self.falseBlocks)):
+                if(currIndex == 0):
+                    del self.falseBlocks[i]
+                    return True
+                elif(self.falseBlocks[i].remove(currIndex)):
+                    return True
+                else:
+                    currIndex -= self.falseBlocks[i].getBlockCount()
+            return False
 
     def setThresh(self, newThresh):
         self.hthresh = newThresh
@@ -438,11 +564,15 @@ class HealBlock(CodeBlock):
         self.mana_cost = mana_cost
         self.heal_amount = heal_amount
         self.fontRender = self.font.render("Cast Heal on myself", 0, (0, 0, 0), (255, 200, 200))
-    def render(self, surface, xOffset = 0, yOffset = 0, renderArrowCnt = -1):
-        if(renderArrowCnt == 0):
+    def render(self, surface, xOffset = 0, yOffset = 0, selIndex = -1, mode = -1):
+        if(mode == 0 and selIndex == 0):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + 1), (xOffset - 10, yOffset + 6), (xOffset - 10, yOffset), (xOffset + self.cwidth + 26, yOffset), (xOffset + self.cwidth + 26, yOffset + 6), (xOffset + self.cwidth + 16, yOffset + 1)])
         pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(mode == 1 and selIndex == 0):
+            pygame.draw.rect(surface, (128, 110, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6), 2)
+        if(mode == 2 and selIndex == 0):
+            pygame.draw.rect(surface, (255, 0, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6), 2)
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
@@ -460,11 +590,15 @@ class FireballBlock(CodeBlock):
         self.mana_cost = mana_cost
         self.damage_amount = damage_amount
         self.fontRender = self.font.render("Cast Fireball at the enemy", 0, (255, 255, 255), (128, 0, 0))
-    def render(self, surface, xOffset = 0, yOffset = 0, renderArrowCnt = -1):
-        if(renderArrowCnt == 0):
+    def render(self, surface, xOffset = 0, yOffset = 0, selIndex = -1, mode = -1):
+        if(mode == 0 and selIndex == 0):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + 1), (xOffset - 10, yOffset + 6), (xOffset - 10, yOffset), (xOffset + self.cwidth + 26, yOffset), (xOffset + self.cwidth + 26, yOffset + 6), (xOffset + self.cwidth + 16, yOffset + 1)])
         pygame.draw.rect(surface, (128, 0, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(mode == 1 and selIndex == 0):
+            pygame.draw.rect(surface, (128, 110, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6), 2)
+        if(mode == 2 and selIndex == 0):
+            pygame.draw.rect(surface, (255, 0, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6), 2)
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
@@ -480,11 +614,15 @@ class MossLeechBlock(CodeBlock):
         super(MossLeechBlock, self).__init__()
         self.cwidth, self.cheight = self.font.size("Cast Moss Leech at the enemy")
         self.fontRender = self.font.render("Cast Moss Leech at the enemy", 0, (255, 255, 255), (0, 128, 0))
-    def render(self, surface, xOffset = 0, yOffset = 0, renderArrowCnt = -1):
-        if(renderArrowCnt == 0):
+    def render(self, surface, xOffset = 0, yOffset = 0, selIndex = -1, mode = -1):
+        if(mode == 0 and selIndex == 0):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + 1), (xOffset - 10, yOffset + 6), (xOffset - 10, yOffset), (xOffset + self.cwidth + 26, yOffset), (xOffset + self.cwidth + 26, yOffset + 6), (xOffset + self.cwidth + 16, yOffset + 1)])
         pygame.draw.rect(surface, (0, 128, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(mode == 1 and selIndex == 0):
+            pygame.draw.rect(surface, (128, 110, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6), 2)
+        if(mode == 2 and selIndex == 0):
+            pygame.draw.rect(surface, (255, 0, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6), 2)
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
@@ -502,11 +640,15 @@ class DouseBlock(CodeBlock):
         self.fontRender = self.font.render("Cast Douse at the enemy", 0, (255, 255, 255), (0, 0, 255))
         self.damage_amount = damage_amount
         self.mana_cost = mana_cost
-    def render(self, surface, xOffset = 0, yOffset = 0, renderArrowCnt = -1):
-        if(renderArrowCnt == 0):
+    def render(self, surface, xOffset = 0, yOffset = 0, selIndex = -1, mode = -1):
+        if(mode == 0 and selIndex == 0):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + 1), (xOffset - 10, yOffset + 6), (xOffset - 10, yOffset), (xOffset + self.cwidth + 26, yOffset), (xOffset + self.cwidth + 26, yOffset + 6), (xOffset + self.cwidth + 16, yOffset + 1)])
         pygame.draw.rect(surface, (0, 0, 255), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6))
         surface.blit(self.fontRender, (xOffset + 4, yOffset + 4))
+        if(mode == 1 and selIndex == 0):
+            pygame.draw.rect(surface, (128, 110, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6), 2)
+        if(mode == 2 and selIndex == 0):
+            pygame.draw.rect(surface, (255, 0, 0), (xOffset, yOffset + 1, self.cwidth + 16, self.cheight + 6), 2)
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
