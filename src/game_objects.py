@@ -126,6 +126,12 @@ class CodeBlock(object):
     # Removes the Block at the specific index inside this Block.  True if successful, false if failed; block containers should implement something other than "always fail"
     def remove(self, index):
         return False
+    # Fetch the Block at a given index.
+    def fetch(self, index):
+        if(index == 0):
+            return self
+        else:
+            return None
 
 # Comment Block.  Does nothing, handy for in-code notes.
 class CommentBlock(CodeBlock):
@@ -261,6 +267,18 @@ class WhileBlock(CodeBlock):
                 else:
                     currIndex -= self.blocks[i].getBlockCount()
             return False
+    def fetch(self, index):
+        if(index == 0):
+            return self
+        else:
+            currIndex = index - 1;
+            for i in range(0, len(self.blocks)):
+                if(currIndex == 0):
+                    return self.blocks[i]
+                rtn = self.blocks[i].fetch(currIndex)
+                if(rtn != None): return rtn
+                currIndex -= self.blocks[i].getBlockCount()
+            return None
 
 # For Block.  Performs a task on each Golem being faced.  Do not implement, only doing 1v1 battles atm.
 #class ForBlock(CodeBlock):
@@ -299,7 +317,7 @@ class IfManaBlock(CodeBlock):
         self.mthresh = 0
         self.trueBlocks = []
         self.falseBlocks = []
-        self.cwidth, self.cheight = self.font.size("If I have more than 9999 Mana")
+        self.cwidth, self.cheight = self.font.size("If I have more than 999999 Mana")
         self.fontRender = self.font.render("If I have more than 0 Mana", 0, (0, 0, 0), (128, 205, 255))
         self.elseRender = self.font.render("Otherwise", 0, (0, 0, 0), (128, 205, 255))
     def render(self, surface, xOffset = 0, yOffset = 0, selIndex = -1, mode = -1):
@@ -419,6 +437,24 @@ class IfManaBlock(CodeBlock):
                 else:
                     currIndex -= self.falseBlocks[i].getBlockCount()
             return False
+    def fetch(self, index):
+        if(index == 0):
+            return self
+        else:
+            currIndex = index - 1;
+            for i in range(0, len(self.trueBlocks)):
+                if(currIndex == 0):
+                    return self.falseBlocks[i]
+                rtn = self.falseBlocks[i].fetch(currIndex)
+                if(rtn != None): return rtn
+                currIndex -= self.falseBlocks[i].getBlockCount()
+            for i in range(0, len(self.falseBlocks)):
+                if(currIndex == 0):
+                    return self.falseBlocks[i]
+                rtn = self.falseBlocks[i].fetch(currIndex)
+                if(rtn != None): return rtn
+                currIndex -= self.falseBlocks[i].getBlockCount()
+            return None
 
     def setThresh(self, newThresh):
         self.mthresh = newThresh
@@ -431,7 +467,7 @@ class IfOwnHealthBlock(CodeBlock):
         self.hthresh = 0
         self.trueBlocks = []
         self.falseBlocks = []
-        self.cwidth, self.cheight = self.font.size("If I have less than 9999 Health")
+        self.cwidth, self.cheight = self.font.size("If I have less than 999999 Health")
         self.fontRender = self.font.render("If I have less than 0 Health", 0, (0, 0, 0), (255, 200, 200))
         self.elseRender = self.font.render("Otherwise", 0, (0, 0, 0), (255, 200, 200))
     def render(self, surface, xOffset = 0, yOffset = 0, selIndex = -1, mode = -1):
@@ -551,6 +587,24 @@ class IfOwnHealthBlock(CodeBlock):
                 else:
                     currIndex -= self.falseBlocks[i].getBlockCount()
             return False
+    def fetch(self, index):
+        if(index == 0):
+            return self
+        else:
+            currIndex = index - 1;
+            for i in range(0, len(self.trueBlocks)):
+                if(currIndex == 0):
+                    return self.falseBlocks[i]
+                rtn = self.falseBlocks[i].fetch(currIndex)
+                if(rtn != None): return rtn
+                currIndex -= self.falseBlocks[i].getBlockCount()
+            for i in range(0, len(self.falseBlocks)):
+                if(currIndex == 0):
+                    return self.falseBlocks[i]
+                rtn = self.falseBlocks[i].fetch(currIndex)
+                if(rtn != None): return rtn
+                currIndex -= self.falseBlocks[i].getBlockCount()
+            return None
 
     def setThresh(self, newThresh):
         self.hthresh = newThresh
