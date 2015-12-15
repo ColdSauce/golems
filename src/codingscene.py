@@ -25,6 +25,14 @@ class CodingScene(scene.Scene):
         self.inputIndex = 0
         self.toolbars = [None, None, None, None]
         self.isSugar = False
+        
+    def enter(self):
+        self.mode = 0
+        self.blockMenu = False
+        self.selIndex = 0
+        self.menuIndex = 0
+        self.inputIndex = 0
+    
     def render(self, surface):
         width, height = surface.get_size()
         surface.fill((0,0,0))
@@ -397,7 +405,7 @@ class CodingScene(scene.Scene):
         self.toolbars[2] = self.makeDelToolbar(activity)
         
         return self.toolbars[0]
-    
+        
     def makeModeToolbar(self, activity):
         toolbar = gtk.Toolbar()
         
@@ -427,6 +435,8 @@ class CodingScene(scene.Scene):
         self.mode = modenum
         self.selIndex = 0
         self.currentBlockIndex = 0
+        self.activity.set_toolbar_box(self.toolbars[modenum])
+        self.toolbars[modenum].show()
     def enterModeAdd(self):
         self.enterMode(0)
     def enterModeModify(self):

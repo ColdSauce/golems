@@ -32,6 +32,7 @@ class SceneManager():
 
         self.scenes[sNum].manager = self
         self.scene = self.scenes[sNum]
+        self.scene.enter()
         if(self.activity != None):
             self.activity.set_toolbar_box(self.toolbars[sNum])
             self.toolbars[sNum].show()

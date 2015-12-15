@@ -20,6 +20,9 @@ class Scene():
 
     def handle_events(self, events):
         raise NotImplementedError
+    
+    def enter(self):
+        pass
         
     def makeToolbar(self, activity):
         " Creates the Toolbar for the Sugar Activity "
