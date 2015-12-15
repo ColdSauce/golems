@@ -11,9 +11,8 @@ class BattleScene(scene.Scene):
         
         testEle = self.UI.UIElement((100,100,250,250),borderColor = (0,255,0))
         self.UI.addElement(testEle,"test")
+        self.nextTurn()
 
-        textTest = self.UI.TextElement((100,100),"This is a test",(255,0,0),30)
-        self.UI.addElement(textTest,"text")
        
     def render(self,surface):
         surface.fill((150,150,150)) # bg color
@@ -113,16 +112,29 @@ class BattleScene(scene.Scene):
             bot.ready += bot.speed
 
         # Determine the fastest bot
-        fastestBot = allBots[0]
+        fastestBot = self.allBots[0]
         for bot in self.allBots:
             if bot.ready > fastestBot.ready:
                 fastestBot = bot
+        slowestBot = self.allBots[map(lambda x: x != fastestBot, self.allBots).index(True)]
 
-        self.takeAction(bot)
+        self.takeAction(fastestBot, slowestBot)
+        self.takeAction(slowestBot, fastestBot)
         
     #this is where the CodeBlocks stuff will take place?
-    def takeAction(self,bot):
-        bot.ready -= bot.speed
+    def takeAction(self,ownerBot, opponentBot):
+        ownerBot.ready -= ownerBot.speed
+        print str(ownerBot.queue_of_code_blocks[0])
+        ownerBot.queue_of_code_blocks[0].execute(ownerBot, opponentBot, self.log)
+
+
+    def log(text):
+        # textTest = self.UI.TextElement((100,100),text,(255,0,0),30)
+        # someTest = self.UI.TextElement((400,100), "some stuff", (255,3,3), 30)
+        # self.UI.addElement(textTest,"text")
+        print "logged!"
+        # self.UI.addElement(someTest,"text")
+        print str(text)
                      
     #This gets called by the renderer, and draws the bots into the proper location on the grid
     def drawBots(self,surface):

@@ -118,7 +118,7 @@ class CodeBlock(object):
     def getBlockCount(self):
         return 1
     # Executes the Block, taking into consideration whether or not this is a calc-mana-cost-only dry run.  Should return mana spent in total, or a tuple of (mana total, flag saying 'had hit an End Turn block').
-    def execute(self, ownerBot, opponentBot, dryRun = False):
+    def execute(self, ownerBot, opponentBot, callback, dryRun = False):
         pass
     # Inserts a new Block somewhere in the listing.  True if successful, false if failed; block containers should implement something other than "always fail"
     def insert(self, blockToInsert, arrowIndex):
@@ -152,7 +152,7 @@ class CommentBlock(CodeBlock):
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
-    def execute(self, ownerBot, opponentBot, dryRun = False):
+    def execute(self, ownerBot, opponentBot, callback, dryRun = False):
         return 0 # Comment blocks do nothing
     def setComment(self, newComment):
         self.comment = newComment
@@ -178,7 +178,7 @@ class SayBlock(CodeBlock):
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
-    def execute(self, ownerBot, opponentBot, dryRun = False):
+    def execute(self, ownerBot, opponentBot, callback, dryRun = False):
 
         return 0
     def setMessage(self, newMessage):
@@ -230,7 +230,7 @@ class WhileBlock(CodeBlock):
         for block in self.blocks:
             heightsum += self.trueBlocks[i].getRenderHeight()
         return heightsum + self.cheight + 8
-    def execute(self, ownerBot, opponentBot, dryRun = False):
+    def execute(self, ownerBot, opponentBot, callback, dryRun = False):
         for block in self.blocks:
             block.execute(ownerBot,opponentBot)
     def insert(self, blockToInsert, arrowIndex):
@@ -307,7 +307,7 @@ class EndTurnBlock(CodeBlock):
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
-    def execute(self, ownerBot, opponentBot, dryRun = False):
+    def execute(self, ownerBot, opponentBot, callback, dryRun = False):
         return (0, True)
 
 # Branch Block, Mana.  Allows for some decision making based on how much Mana a Golem has in reserve.
@@ -378,13 +378,13 @@ class IfManaBlock(CodeBlock):
         for i in range(0, len(self.falseBlocks)):
             heightsum += falseBlocks[i].getRenderHeight()
         return heightsum + self.cheight + 8
-    def execute(self, ownerBot, opponentBot, dryRun = False):
+    def execute(self, ownerBot, opponentBot, callback, dryRun = False):
         if ownerBot.mana > self.mthresh:
             for t_block in self.trueBlocks:
-                t_block.execute(ownerBot, opponentBot)
+                t_block.execute(ownerBot, opponentBot,callback)
         else:
             for f_block in self.falseBlocks:
-                f_block.execute(ownerBot, opponentBot)
+                f_block.execute(ownerBot, opponentBot,callback)
     def insert(self, blockToInsert, arrowIndex):
         if(arrowIndex == 0):  # Insert before current block
             return False  # Should have been handled by calling function 
@@ -528,13 +528,13 @@ class IfOwnHealthBlock(CodeBlock):
         for i in range(0, len(self.falseBlocks)):
             heightsum += self.falseBlocks[i].getRenderHeight()
         return heightsum + self.cheight + 8
-    def execute(self, ownerBot, opponentBot, dryRun = False):
+    def execute(self, ownerBot, opponentBot, callback,dryRun = False):
         if ownerBot.health < self.hthresh:
             for t_block in self.trueBlocks:
-                t_block.execute(ownerBot, opponentBot)
+                t_block.execute(ownerBot, opponentBot,callback)
         else:
             for f_block in self.falseBlocks:
-                f_block.execute(ownerBot, opponentBot)
+                f_block.execute(ownerBot, opponentBot,callback)
     def insert(self, blockToInsert, arrowIndex):
         if(arrowIndex == 0):  # Insert before current block
             return False  # Should have been handled by calling function 
@@ -630,9 +630,10 @@ class HealBlock(CodeBlock):
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
-    def execute(self, ownerBot, opponentBot, dryRun = False):
+    def execute(self, ownerBot, opponentBot, callback, dryRun = False):
         if dryRun:
             return (ownerBot.mana - self.mana_cost, False)
+        callback(ownerBot.name + " healed " + opponentBot.name + " Cost: " + self.mana_cost + " Amount: " + self.heal_amount)
         opponentBot.mana -= self.mana_cost
         ownerBot.health = (ownerBot.health + self.heal_amount) % 100
 
@@ -656,9 +657,11 @@ class FireballBlock(CodeBlock):
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
-    def execute(self, ownerBot, opponentBot, dryRun = False):
+    def execute(self, ownerBot, opponentBot, cabllback, dryRun = False):
         if dryRun:
             return (ownerBot.mana - self.mana_cost, False)
+
+        callback(ownerBot.name + " hit " + opponentBot.name + "w/ a Fireball!" +  " Cost: " + self.mana_cost + " Damage: " + self.damage_amount)
         opponentBot.mana -= self.mana_cost
         opponenetBot.health -= self.damage_amount
 
@@ -680,9 +683,10 @@ class MossLeechBlock(CodeBlock):
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
-    def execute(self, ownerBot, opponentBot, dryRun = False):
+    def execute(self, ownerBot, opponentBot, callback, dryRun = False):
         if dryRun:
             return (ownerBot.mana - self.mana_cost, False)
+        callback(ownerBot.name + " moss leeched " + opponentBot.name + "!" + " Cost: " + self.mana_cost + " Damage: " + self.damage_amount)
         opponentBot.mana -= self.mana_cost
         opponentBot.health -= self.damage_amount
 
@@ -706,9 +710,10 @@ class DouseBlock(CodeBlock):
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
-    def execute(self, ownerBot, opponentBot, dryRun = False):
+    def execute(self, ownerBot, opponentBot, callback, dryRun = False):
         if dryRun:
             return (ownerBot.mana - self.mana_cost, False)
+        callback(ownerBot.name + " doused " + opponentBot.name + "!" + " Cost: " + self.mana_cost + " Damage: " + self.damage_amount)
         opponentBot.mana -= self.mana_cost
         opponentBot.health -= self.damage_amount
 
