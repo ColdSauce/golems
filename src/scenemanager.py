@@ -29,6 +29,11 @@ class SceneManager():
         else: #scene has been created, but certain scenes still need special args.
             if sNum is scene.Scenes.BATTLE:
                 self.scenes[sNum].sendToBattle(specArgs['c1'],specArgs['c2'])
+            if sNum is scene.Scenes.INTERACTIVE:
+                try:
+                    self.scenes[sNum].destroyBot(specArgs['deadBot'])
+                except:
+                    pass
 
         self.scenes[sNum].manager = self
         self.scene = self.scenes[sNum]

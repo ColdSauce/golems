@@ -13,7 +13,7 @@ if(isLinux):
         isLinux = False
 
 class InteractiveScene(scene.Scene):
-    def __init__(self):
+    def __init__(self, **specArgs):
         self.movable_characters = []
         self.map = worldmap.Map(30, 15)
         self.font = pygame.font.SysFont("couriernew", 24)
@@ -65,6 +65,12 @@ class InteractiveScene(scene.Scene):
         self.activity = None
         
         self.menuIndex = 0
+
+    def destroyBot(self, bot):
+        for mov in self.movable_characters:
+            for bot_ in mov.list_of_bots:
+                if bot_ == bot:
+                    self.movable_characters.remove(mov)
 
     def doKeys(self, keys, keysLastFrame, char):
         if char.moving: # Player's currently moving, ignore keypresses

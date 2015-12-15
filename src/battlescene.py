@@ -107,7 +107,8 @@ class BattleScene(scene.Scene):
     def sendToBattle(self, c1, c2):
         self.char1 = c1
         self.char2 = c2
-        prepBattle()
+        self.prepBattle()
+        
 
     def prepBattle(self):
         self.c1Bots = self.char1.list_of_bots
@@ -129,18 +130,18 @@ class BattleScene(scene.Scene):
         for bot in self.allBots:
             bot.ready = 0
         
-    def showDefeatSplash(self):
-        print "Defeated Har Har Har"
+    def doDefeat(self):
+        self.manager.go_to(scene.Scenes.INTERACTIVE) 
 
-    def showVictorySplash(self):
-        print "Victorious hyuk hyuk hyuk"
+    def doVictory(self, bot):
+        self.manager.go_to(scene.Scenes.INTERACTIVE, deadBot=bot) 
 
     def testDidLose(self, bot):
         if bot.health <= 0:
             if bot.pOwned:
-                self.showDefeatSplash()
+                self.doDefeat()
             else:
-                self.showVictorySplash()
+                self.doVictory(bot)
 
     def nextTurn(self):
         # Readiness increases for all bots.
