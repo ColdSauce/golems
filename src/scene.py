@@ -11,9 +11,25 @@ class Scene():
     def handle_events(self, events):
         raise NotImplementedError
         
-    def makeToolbar(self):
+    def makeToolbar(self, activity):
         " Creates the Toolbar for the Sugar Activity "
-        return None
+        toolbar = ToolbarBox()
+        
+        activity_button = ActivityToolbarButton(activity)
+        toolbar.toolbar.insert(activity_button, -1)
+        activity_button.show()
+        
+        separator = Gtk.SeparatorToolItem()
+        separator.props.draw = False
+        separator.set_expand(True)
+        toolbar.toolbar.insert(separator, -1)
+        separator.show()
+        
+        stop_button = StopButton(self)
+        toolbar.toolbar.insert(stop_button, -1)
+        stop_button.show()
+        
+        return toolbar
 
 class Scenes:
     MENU = 0

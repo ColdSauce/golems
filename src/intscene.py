@@ -139,16 +139,17 @@ class InteractiveScene(scene.Scene):
     def handle_events(self, events):
         pass
 
-    def makeToolbar(self):
+    def makeToolbar(self, activity):
         toolbar = ToolbarBox()
         
-        activity_button = ActivityToolbarButton(self.manager.activity)
+        activity_button = ActivityToolbarButton(activity)
         toolbar.toolbar.insert(activity_button, -1)
         activity_button.show()
         
         editmode = ToolButton('edit-description')
         editmode.set_tooltip(_("Enter Edit Mode"))
         editmode.set_accelerator(_('<ctrl>e'))
+        editmode.connect('clicked', self.gotoCoding)
         toolbar.toolbar.insert(editmode, -1)
         editmode.show()
         

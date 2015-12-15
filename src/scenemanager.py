@@ -23,7 +23,7 @@ class SceneManager():
             elif sNum is scene.Scenes.CODING:
                 self.scenes[sNum] = codingscene.CodingScene(specArgs['plyr'])
             if(self.activity != None):
-                self.toolbars[sNum] = self.scenes[sNum].makeToolbar() 
+                self.toolbars[sNum] = self.scenes[sNum].makeToolbar(self.activity) 
         else: #scene has been created, but certain scenes still need special args.
             if sNum is scene.Scenes.BATTLE:
                 self.scenes[sNum].sendToBattle(specArgs['c1'],specArgs['c2'])
