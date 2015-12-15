@@ -13,10 +13,8 @@ class CodingScene(scene.Scene):
         self.blockMenu = False
         self.menuIndex = 0
         self.inputIndex = 0
-        self.height = 900 # help with globals?
-        self.width = 1200
     def render(self, surface):
-        width, height = (self.width, self.height)
+        width, height = surface.get_size()
         surface.fill((0,0,0))
         top = 16
         arrIndex = self.selIndex
@@ -310,9 +308,6 @@ class CodingScene(scene.Scene):
             self.selBlock = self.fetch()
         self.doKeys()
     def handle_events(self, events):
-        for event in events:
-            if event.type == pygame.VIDEORESIZE:
-                self.width,self.height = event.size
         pass
 
 
