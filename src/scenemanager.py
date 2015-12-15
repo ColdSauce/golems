@@ -35,7 +35,7 @@ class SceneManager():
         self.scene.enter() # Re-initialize a Scene if it needs it
         if(self.activity != None):
             for tBar in self.toolbars:
-                if(tBar != None) tBar.hide()
+                if(tBar != None): tBar.hide()
             self.toolbars[sNum].show()
             self.activity.set_toolbar_box(self.toolbars[sNum])
 
