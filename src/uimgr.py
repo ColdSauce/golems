@@ -12,8 +12,10 @@ class Singleton(object):
 # I know the singleton stuff is weird, but just call uimgr.UIManager() to get this instance
 class UIManager(Singleton):
     
-    # Warning:
-    # do not put children of 
+    
+    # Put things in here you want to be rendered automatically.
+    # Containers will automatically render their children.
+    # You can also simply keep a local reference to the UIElement and render it that way. 
     parentUI = {}
         
     def clear(self):
@@ -22,7 +24,10 @@ class UIManager(Singleton):
     def add(self, ele, ID):
         ele.ID = ID
         self.parentUI[ID] = ele
-    
+
+    def getUI(self, ID):
+        return
+        
     def render(self, surface):
         for key in self.parentUI.keys():
             self.parentUI[key].render(surface)
@@ -106,7 +111,7 @@ class UIManager(Singleton):
     # Text element
     class Text(UIElement):
         def __init__(self, position, text, color, size):       
-            self.font = pygame.font.SysFont("comicsansms", size)
+            self.font = pygame.font.SysFont("arial", size)
             self.text = text
             self.fontSize = size
             self.color = color

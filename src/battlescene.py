@@ -1,4 +1,4 @@
-import pygame, kbInput, game_objects, scene, uimgr, time, sys
+import pygame, kbInput, game_objects, scene, uimgr, time, random, sys
 isLinux = sys.platform.startswith("linux")
 if(isLinux):
     try:
@@ -17,18 +17,19 @@ class BattleScene(scene.Scene):
         self.grid = self.makeGrid()
         self.char1 = char1
         self.char2 = char2
-        self.startBattle()
+        self.startTime = time.time() # returns time as a float
+        self.gameSpeed = 3.0 # time between turns in seconds
+        self.nextTurnTime = self.startTime + self.gameSpeed
+        self.prepBattle()
 
         self.UI = uimgr.UIManager()
         
         self.makeStatBox()
         self.updateStatBox()
-         
-        #testEle = self.UI.UIElement((100,100,250,250),borderColor = (0,255,0))
-        #self.UI.addElement(testEle,"test")
-
-        #textTest = self.UI.TextElement((100,100),"This is a test",(255,0,0),30)
-        #self.UI.addElement(textTest,"text")
+        self.makeLogBox()
+        
+        self.nextTurn() #Actually starts the battle
+ 
        
     def render(self,surface):
         surface.fill((150,150,150)) # bg color
@@ -37,12 +38,20 @@ class BattleScene(scene.Scene):
         
         self.drawBots(surface)
         self.drawStatBox(surface)
-        self.UI.render(surface) 
+        self.drawLogBox(surface)
+        #self.UI.render(surface) 
         
     def handle_events(self, events):
         pass
 
     def update(self, keys, keysLastFrame):
+        
+        currentTime = time.time()
+        if currentTime >= self.nextTurnTime:
+            #print "taking turn at time " + str(currentTime) # works
+            self.nextTurn()
+            self.nextTurnTime += self.gameSpeed
+            
         if kbInput.isUpPressed(keys):
             self.moveBotByDir(self.c1Bots[0],0,1)
             self.moveBotByDir(self.c2Bots[0],0,1)
@@ -98,9 +107,9 @@ class BattleScene(scene.Scene):
     def sendToBattle(self, c1, c2):
         self.char1 = c1
         self.char2 = c2
-        startBattle()
+        prepBattle()
 
-    def startBattle(self):
+    def prepBattle(self):
         self.c1Bots = self.char1.list_of_bots
         self.c2Bots = self.char2.list_of_bots
         self.allBots = []
@@ -119,8 +128,6 @@ class BattleScene(scene.Scene):
         
         for bot in self.allBots:
             bot.ready = 0
-        pass
-        
         
     def showDefeatSplash(self):
         print "Defeated Har Har Har"
@@ -130,7 +137,7 @@ class BattleScene(scene.Scene):
 
     def testDidLose(self, bot):
         if bot.health <= 0:
-            if bot in self.c1Bots:
+            if bot.pOwned:
                 self.showDefeatSplash()
             else:
                 self.showVictorySplash()
@@ -147,32 +154,65 @@ class BattleScene(scene.Scene):
                 fastestBot = bot
         slowestBot = self.allBots[map(lambda x: x != fastestBot, self.allBots).index(True)]
 
-
-        while slowestBot.health > 0 and fastestBot.health > 0:
-            print "It's " + fastestBot.name + "'s turn!"
-            self.takeAction(fastestBot, slowestBot)
-            time.sleep(3)
-
-            print "It's " + slowestBot.name + "'s turn!"
-            self.takeAction(slowestBot, fastestBot)
-            time.sleep(3)
-
-
-        self.testDidLose(slowestBot)
-        self.testDidLose(fastestBot)
         
+        self.takeAction(fastestBot, self.getRandomOpponent(fastestBot))
+        self.testDidLose(fastestBot)
+
+    def getRandomOpponent(self, bot):
+        if bot.pOwned:
+            return self.c2Bots[random.randint(0,len(self.c2Bots)-1)]
+        else:
+            return self.c1Bots[random.randint(0,len(self.c1Bots)-1)]   
+ 
     #this is where the CodeBlocks stuff will take place?
     def takeAction(self,ownerBot, opponentBot):
-        ownerBot.ready -= ownerBot.speed
+        ownerBot.ready -= ownerBot.speed 
+       
+        # print ("got into takeAction") # works
+ 
         def log(text):
-            # textTest = self.UI.TextElement((100,100),text,(255,0,0),30)
-            # someTest = self.UI.TextElement((400,100), "some stuff", (255,3,3), 30)
-            # self.UI.addElement(textTest,"text")
-            # self.UI.addElement(someTest,"text")
-            print str(text)
+            # print str(text)
+            self.logLineText.append(str(text))
 
         for cb in ownerBot.queue_of_code_blocks:
             cb.execute(ownerBot, opponentBot, log)
+        
+        if len(ownerBot.queue_of_code_blocks) is 1: 
+            log(ownerBot.name + " doesn't have any programming!")        
+
+        self.updateLogBox()
+        self.updateStatBox()
+    
+    def makeLogBox(self):
+        white = (255,255,255)
+        black = (0,0,0)
+        font  = 20
+
+        self.logBox = self.UI.Container((300,50,600,300),bgColor = white, borderColor = black)
+        self.logLineUI = []
+        self.logLineText = []
+
+        for i in range(0,10):
+            line = self.UI.Text((10,275-i*30),"TestLine", black, font)
+            self.logLineUI.append(line)
+            self.logBox.addChild(line)
+        
+    def drawLogBox(self, surface):
+        self.logBox.render(surface)
+            
+    def updateLogBox(self):
+        maxLines = 10
+        numLines = len(self.logLineText)
+        start = 0
+        if numLines > maxLines: start = numLines - maxLines
+
+        for i in range(start, start + maxLines):
+            if i >= numLines: 
+                self.logLineUI[i-start].setText("")
+            else:
+                line = self.logLineText[numLines - i - 1] # the most recent line is drawn on the bottom
+                self.logLineUI[i-start].setText(line) 
+            
 
     #This gets called by the renderer, and draws the bots into the proper location on the grid
     def drawBots(self,surface):
@@ -224,8 +264,8 @@ class BattleScene(scene.Scene):
         tColor = (0,0,255)
         bColor = (0,0,0)
         textColor = (0,0,0) 
-        fontSizeL = 30
-        fontSize = 20
+        fontSizeL = 20
+        fontSize = 15
         padL = 50 #large padding
         pad = 10 #padding
 
@@ -259,7 +299,7 @@ class BattleScene(scene.Scene):
             mp = self.UI.Text((pad,pad*2+yOff),"UPDATEDLATER",textColor,fontSize)
             statBox.addChild(mp)
 
-            name = self.UI.Text((pad,-pad*2),"BOT NAME",textColor,fontSizeL)
+            name = self.UI.Text((pad,-pad*2),"BOT NAME",textColor,fontSize)
             statBox.addChild(name)
             
             if i < oNum:
@@ -280,7 +320,10 @@ class BattleScene(scene.Scene):
 
             mp = statBox[i].child(1)
             mp.setText("Mana : "+str(bot.mana)+"/"+str(bot.maxMana))
-       
+            
+            name = statBox[i].child(2)
+            name.setText(bot.name)
+ 
         #for all players bots
         for i in range(0,oNum):
             bot = self.c1Bots[i]
@@ -305,8 +348,10 @@ class BattleScene(scene.Scene):
         w = 40 #Width
         h = 15 #Height
 
+        botHPPercentage = float(bot.health)/float(bot.maxHealth)
+
         bgRect = (x+adj-b,y-b,w+b*2,h+b*2)
-        hpRect = (x+adj,y,w,h)
+        hpRect = (x+adj,y,w*botHPPercentage,h)
         pygame.draw.rect(surface, bgColor, bgRect)
         pygame.draw.rect(surface, hpColor, hpRect)
 

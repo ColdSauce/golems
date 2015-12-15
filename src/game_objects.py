@@ -182,8 +182,7 @@ class SayBlock(CodeBlock):
     def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, callback, dryRun = False):
-
-        return 0
+        callback(ownerBot.name + " says: " + self.message)
     def setMessage(self, newMessage):
         self.message = newMessage
         self.cwidth, self.cheight = self.font.size("Say \"" + self.message + "\"")
@@ -637,8 +636,9 @@ class HealBlock(CodeBlock):
         if dryRun:
             return (ownerBot.mana - self.mana_cost, False)
         callback(ownerBot.name + " healed " + opponentBot.name + " Cost: " + str(self.mana_cost) + " Amount: " + str(self.heal_amount))
-        opponentBot.mana -= self.mana_cost
-        ownerBot.health = (ownerBot.health + self.heal_amount) % 100
+        ownerBot.mana -= self.mana_cost
+        ownerBot.health = (ownerBot.health + self.heal_amount)
+        if ownerBot.health > ownerBot.maxHealth: ownerBot.health = ownerBot.maxHealth  
 
 # Fireball Block.  Causes the Golem to cast Fireball, dealing ignis damage on an opponent.
 class FireballBlock(CodeBlock):
@@ -665,7 +665,7 @@ class FireballBlock(CodeBlock):
             return (ownerBot.mana - self.mana_cost, False)
 
         callback(ownerBot.name + " hit " + opponentBot.name + "w/ a Fireball!" +  " Cost: " + str(self.mana_cost) + " Damage: " + str(self.damage_amount))
-        opponentBot.mana -= self.mana_cost
+        ownerBot.mana -= self.mana_cost
         opponentBot.health -= self.damage_amount
 
 # Moss Leech Block.  Causes the Golem to cast Moss Leech, dealing natura damage on an opponent.
@@ -692,7 +692,7 @@ class MossLeechBlock(CodeBlock):
         if dryRun:
             return (ownerBot.mana - self.mana_cost, False)
         callback(ownerBot.name + " moss leeched " + opponentBot.name + "!" + " Cost: " + str(self.mana_cost) + " Damage: " + str(self.damage_amount))
-        opponentBot.mana -= self.mana_cost
+        ownerBot.mana -= self.mana_cost
         opponentBot.health -= self.damage_amount
 
 # Douse Block.  Causes the Golem to cast Douse, dealing aqua damage on an opponent.
@@ -719,6 +719,6 @@ class DouseBlock(CodeBlock):
         if dryRun:
             return (ownerBot.mana - self.mana_cost, False)
         callback(ownerBot.name + " doused " + opponentBot.name + "!" + " Cost: " + str(self.mana_cost) + " Damage: " + str(self.damage_amount))
-        opponentBot.mana -= self.mana_cost
+        ownerBot.mana -= self.mana_cost
         opponentBot.health -= self.damage_amount
 

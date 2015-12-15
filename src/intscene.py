@@ -30,10 +30,13 @@ class InteractiveScene(scene.Scene):
                                       x = 1, 
                                       y = 1,
                                       )
-        some_test_list = []
-        for x in range(0,10):
-            some_test_list.append(game_objects.SayBlock())
         
+        botBlocks = []
+        botSays = game_objects.SayBlock()
+        botSays.setMessage("Beep boop")
+        botBlocks.append(botSays)
+        botBlocks.append(game_objects.FireballBlock(10,5)) 
+
         
         enemyLocations = self.map.getEnemyLocations()
         numEnemies = len(enemyLocations)
@@ -43,7 +46,7 @@ class InteractiveScene(scene.Scene):
             yLoc = position[1]
             self.enemy_player = game_objects.EnemyPlayer(name = "AI-" + str(x),
                                         load_function = pygame.image.load,
-                                        list_of_bots = [game_objects.GenericBot("enemy's Bot", "res/main_player/up.png",queue_of_code_blocks = some_test_list,speed=8)],
+                                        list_of_bots = [game_objects.GenericBot("enemy's Bot", "res/main_player/up.png",queue_of_code_blocks = botBlocks,speed=8)],
                                         directional_sprites = ["res/main_player/up.png", 
                                                              "res/main_player/right.png", 
                                                              "res/main_player/down.png", 
