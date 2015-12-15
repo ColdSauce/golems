@@ -7,7 +7,9 @@ class SceneManager():
         self.activity = None
         self.scenes = []
         self.toolbars = []
-        for i in range(scene.Scenes.NUMSCENES) : self.scenes.append(None)
+        for i in range(scene.Scenes.NUMSCENES):
+            self.scenes.append(None)
+            self.toolbars.append(None)
         self.go_to(scene.Scenes.MENU)
 
     def go_to(self, sNum, **specArgs):

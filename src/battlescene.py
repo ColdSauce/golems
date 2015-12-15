@@ -1,4 +1,12 @@
-import pygame, kbInput, game_objects, scene, uimgr
+import pygame, kbInput, game_objects, scene, uimgr, sys
+isLinux = sys.platform.startswith("linux")
+if(isLinux):
+    from gi.repository import Gtk
+    import sugar3.activity.activity
+    from sugar3.graphics.toolbarbox import ToolbarBox
+    from sugar3.activity.widgets import ActivityToolbarButton
+    from sugar3.graphics.toolbutton import ToolButton
+    from sugar3.activity.widgets import StopButton
 
 class BattleScene(scene.Scene):
     
@@ -231,4 +239,23 @@ class BattleScene(scene.Scene):
         
         return final
     #End makeGrid
- 
+    
+    def makeToolbar(self, activity):
+        toolbar = ToolbarBox()
+        
+        activity_button = ActivityToolbarButton(activity)
+        toolbar.toolbar.insert(activity_button, -1)
+        activity_button.show()
+        
+        separator = Gtk.SeparatorToolItem()
+        separator.props.draw = False
+        separator.set_expand(True)
+        toolbar.toolbar.insert(separator, -1)
+        separator.show()
+        
+        stop_button = StopButton(activity)
+        toolbar.toolbar.insert(stop_button, -1)
+        stop_button.show()
+        
+        return toolbar
+    #End makeToolbar

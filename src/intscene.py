@@ -161,7 +161,7 @@ class InteractiveScene(scene.Scene):
         toolbar.toolbar.insert(separator, -1)
         separator.show()
         
-        stop_button = StopButton(self)
+        stop_button = StopButton(activity)
         toolbar.toolbar.insert(stop_button, -1)
         stop_button.show()
         
