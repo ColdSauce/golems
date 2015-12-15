@@ -1,4 +1,4 @@
-import pygame, kbInput, game_objects, scene, worldmap
+import pygame, kbInput, game_objects, scene, worldmap, sys
 isLinux = sys.platform.startswith("linux")
 if(isLinux):
     import sugar3.activity.activity
