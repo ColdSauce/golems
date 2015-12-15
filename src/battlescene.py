@@ -161,19 +161,22 @@ class BattleScene(scene.Scene):
         # print ("got into takeAction") # works
  
         def log(text):
-            print "made it to logger"  
-            print str(text)
+            # print str(text)
             self.logLineText.append(str(text))
 
         for cb in ownerBot.queue_of_code_blocks:
             cb.execute(ownerBot, opponentBot, log)
         
-        self.updateLogBox()
+        if len(ownerBot.queue_of_code_blocks) is 1: 
+            log(ownerBot.name + " doesn't have any programming!")        
 
+        self.updateLogBox()
+        self.updateStatBox()
+    
     def makeLogBox(self):
         white = (255,255,255)
         black = (0,0,0)
-        font  = 25
+        font  = 20
 
         self.logBox = self.UI.Container((300,50,600,300),bgColor = white, borderColor = black)
         self.logLineUI = []
@@ -192,10 +195,12 @@ class BattleScene(scene.Scene):
         start = 0
         if numLines > 10: start = numLines - 10
 
-        for i in range(start, numLines):
-            if i == numLines: break
-            line = self.logLineText[i]
-            self.logLineUI[i-start].setText(line) 
+        for i in range(start, start+10):
+            if i >= numLines: 
+                self.logLineUI[i-start].setText("")
+            else:
+                line = self.logLineText[i]
+                self.logLineUI[i-start].setText(line) 
             
 
     #This gets called by the renderer, and draws the bots into the proper location on the grid
@@ -248,8 +253,8 @@ class BattleScene(scene.Scene):
         tColor = (0,0,255)
         bColor = (0,0,0)
         textColor = (0,0,0) 
-        fontSizeL = 30
-        fontSize = 20
+        fontSizeL = 20
+        fontSize = 15
         padL = 50 #large padding
         pad = 10 #padding
 
@@ -283,7 +288,7 @@ class BattleScene(scene.Scene):
             mp = self.UI.Text((pad,pad*2+yOff),"UPDATEDLATER",textColor,fontSize)
             statBox.addChild(mp)
 
-            name = self.UI.Text((pad,-pad*2),"BOT NAME",textColor,fontSizeL)
+            name = self.UI.Text((pad,-pad*2),"BOT NAME",textColor,fontSize)
             statBox.addChild(name)
             
             if i < oNum:
@@ -304,7 +309,10 @@ class BattleScene(scene.Scene):
 
             mp = statBox[i].child(1)
             mp.setText("Mana : "+str(bot.mana)+"/"+str(bot.maxMana))
-       
+            
+            name = statBox[i].child(2)
+            name.setText(bot.name)
+ 
         #for all players bots
         for i in range(0,oNum):
             bot = self.c1Bots[i]
@@ -329,8 +337,10 @@ class BattleScene(scene.Scene):
         w = 40 #Width
         h = 15 #Height
 
+        botHPPercentage = bot.health/bot.maxHealth
+
         bgRect = (x+adj-b,y-b,w+b*2,h+b*2)
-        hpRect = (x+adj,y,w,h)
+        hpRect = (x+adj,y,w*botHPPercentage,h)
         pygame.draw.rect(surface, bgColor, bgRect)
         pygame.draw.rect(surface, hpColor, hpRect)
 

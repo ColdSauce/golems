@@ -14,7 +14,8 @@ class UIManager(Singleton):
     
     
     # Put things in here you want to be rendered automatically.
-    # Containers will automatically render their children. 
+    # Containers will automatically render their children.
+    # You can also simply keep a local reference to the UIElement and render it that way. 
     parentUI = {}
         
     def clear(self):
@@ -110,7 +111,7 @@ class UIManager(Singleton):
     # Text element
     class Text(UIElement):
         def __init__(self, position, text, color, size):       
-            self.font = pygame.font.SysFont("comicsansms", size)
+            self.font = pygame.font.SysFont("arial", size)
             self.text = text
             self.fontSize = size
             self.color = color
