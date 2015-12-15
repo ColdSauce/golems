@@ -1,4 +1,5 @@
 import pygame, kbInput, game_objects, scene, worldmap, sys
+from gettext import gettext as _
 isLinux = sys.platform.startswith("linux")
 if(isLinux):
     import sugar3.activity.activity
