@@ -5,6 +5,7 @@ if(isLinux):
     from gi.repository import Gtk
     import sugar3.activity.activity
     from sugar3.graphics.toolbarbox import ToolbarBox
+    from sugar3.graphics.toolbarbox import ToolbarButton
     from sugar3.activity.widgets import ActivityToolbarButton
     from sugar3.graphics.toolbutton import ToolButton
     from sugar3.activity.widgets import StopButton
@@ -438,7 +439,7 @@ class CodingScene(scene.Scene):
         self.toolbars[modenum].show()
     def enterModeAdd(self, button=None):
         self.enterMode(0)
-    def enterModSeModify(self, button=None):
+    def enterModeModify(self, button=None):
         self.enterMode(1)
     def enterModeDelete(self, button=None):
         self.enterMode(2)
@@ -473,10 +474,10 @@ class CodingScene(scene.Scene):
         toolbar = self.makeGenericToolbar(activity)
         
         blockbarButton = ToolbarButton(
-            page=makeBlockToolbar(activity),
+            page=self.makeBlockToolbar(activity),
             icon_name='toolbar-block'
         )
-        toolbar.toolbar.insert(blockbarButton, -3)
+        toolbar.toolbar.insert(blockbarButton, -4)
         blockbarButton.show()
         
         return toolbar
