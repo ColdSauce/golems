@@ -26,8 +26,8 @@ if(isLinux):
             # Create the game instance.
             self.gameInstance = GolemsGame()
     
-            # Build the activity toolbar.
-            self.buildToolbar()
+            # Allow for creation of Sugar Toolbars.
+            self.gameInstance.activity = self
     
             # Note that set_canvas implicitly calls read_file when
             # resuming from the Journal.
@@ -49,13 +49,13 @@ if(isLinux):
             activity_button.show()
     
             # Creating a button:
-            #stop_play = ToolButton('media-playback-stop')
-            #stop_play.set_tooltip(_("Stop"))
-            #stop_play.set_accelerator(_('<ctrl>space'))
+            editmode = ToolButton('edit-description')
+            editmode.set_tooltip(_("Enter Edit Mode"))
+            editmode.set_accelerator(_('<ctrl>e'))
             #stop_play.connect('clicked', self._stop_play_cb)
-            #stop_play.show()
+            editmode.show()
     
-            #toolbar_box.toolbar.insert(stop_play, -1)
+            toolbar_box.toolbar.insert(editmode, -1)
     
             # Blank space (separator):
             separator = Gtk.SeparatorToolItem()
@@ -69,6 +69,7 @@ if(isLinux):
             toolbar_box.toolbar.insert(stop_button, -1)
             stop_button.show()
             
+            return toolbar_box
         # Loading saved state from the Journal
         def read_file(self, file_path):
             self.gameInstance.read_file(file_path)

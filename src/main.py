@@ -13,9 +13,10 @@ class GolemsGame:
     
     def __init__(self):
         self.clock = pygame.time.Clock()
+        self.activity = None
                 
         # run the game loop
-    def game_loop(self):
+    def game_loop(self, editmodeButton = None):
         global SCREEN_WIDTH
         global SCREEN_HEIGHT
         FPS = 30
@@ -25,6 +26,10 @@ class GolemsGame:
         SCREEN_HEIGHT = height
 
         manager = scenemanager.SceneManager()
+        
+        if(self.activity != None):
+            manager.activity = self.activity
+        
         while True:
             if(isLinux):
                 while Gtk.events_pending():

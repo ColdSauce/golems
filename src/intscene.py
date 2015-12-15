@@ -1,4 +1,11 @@
 import pygame, kbInput, game_objects, scene, worldmap
+isLinux = sys.platform.startswith("linux")
+if(isLinux):
+    import sugar3.activity.activity
+    from sugar3.graphics.toolbarbox import ToolbarBox
+    from sugar3.activity.widgets import ActivityToolbarButton
+    from sugar3.graphics.toolbutton import ToolButton
+    from sugar3.activity.widgets import StopButton
 
 class InteractiveScene(scene.Scene):
     def __init__(self):
@@ -78,6 +85,9 @@ class InteractiveScene(scene.Scene):
             elif kbInput.isLeftPressed(keys):
                 self.move(char,game_objects.Direction.LEFT)
         self.keysLastFrame = keys
+    
+    def gotoCoding(self):
+        self.manager.go_to(scene.Scenes.CODING, plyr = self.main_player)
 
     def render(self, surface):
         surface.fill((0,0,0))
@@ -129,4 +139,27 @@ class InteractiveScene(scene.Scene):
     def handle_events(self, events):
         pass
 
-
+    def makeToolbar(self):
+        toolbar = ToolbarBox()
+        
+        activity_button = ActivityToolbarButton(self.manager.activity)
+        toolbar.toolbar.insert(activity_button, -1)
+        activity_button.show()
+        
+        editmode = ToolButton('edit-description')
+        editmode.set_tooltip(_("Enter Edit Mode"))
+        editmode.set_accelerator(_('<ctrl>e'))
+        toolbar.toolbar.insert(editmode, -1)
+        editmode.show()
+        
+        separator = Gtk.SeparatorToolItem()
+        separator.props.draw = False
+        separator.set_expand(True)
+        toolbar.toolbar.insert(separator, -1)
+        separator.show()
+        
+        stop_button = StopButton(self)
+        toolbar.toolbar.insert(stop_button, -1)
+        stop_button.show()
+        
+        return toolbar
