@@ -1,4 +1,4 @@
-import pygame, kbInput, game_objects, scene, uimgr
+import pygame, kbInput, game_objects, scene, uimgr,time
 
 class BattleScene(scene.Scene):
     
@@ -11,9 +11,8 @@ class BattleScene(scene.Scene):
         
         testEle = self.UI.UIElement((100,100,250,250),borderColor = (0,255,0))
         self.UI.addElement(testEle,"test")
+        self.nextTurn()
 
-        textTest = self.UI.TextElement((100,100),"This is a test",(255,0,0),30)
-        self.UI.addElement(textTest,"text")
        
     def render(self,surface):
         surface.fill((150,150,150)) # bg color
@@ -107,23 +106,58 @@ class BattleScene(scene.Scene):
         pass
         
         
+    def showDefeatSplash(self):
+        print "Defeated Har Har Har"
+
+    def showVictorySplash(self):
+        print "Victorious hyuk hyuk hyuk"
+
+    def testDidLose(self, bot):
+        if bot.health <= 0:
+            if bot in self.c1Bots:
+                self.showDefeatSplash()
+            else:
+                self.showVictorySplash()
+
     def nextTurn(self):
         # Readiness increases for all bots.
         for bot in self.allBots:
             bot.ready += bot.speed
 
         # Determine the fastest bot
-        fastestBot = allBots[0]
+        fastestBot = self.allBots[0]
         for bot in self.allBots:
             if bot.ready > fastestBot.ready:
                 fastestBot = bot
+        slowestBot = self.allBots[map(lambda x: x != fastestBot, self.allBots).index(True)]
 
-        self.takeAction(bot)
+
+        while slowestBot.health > 0 and fastestBot.health > 0:
+            print "It's " + fastestBot.name + "'s turn!"
+            self.takeAction(fastestBot, slowestBot)
+            time.sleep(3)
+
+            print "It's " + slowestBot.name + "'s turn!"
+            self.takeAction(slowestBot, fastestBot)
+            time.sleep(3)
+
+
+        self.testDidLose(slowestBot)
+        self.testDidLose(fastestBot)
         
     #this is where the CodeBlocks stuff will take place?
-    def takeAction(self,bot):
-        bot.ready -= bot.speed
-                     
+    def takeAction(self,ownerBot, opponentBot):
+        ownerBot.ready -= ownerBot.speed
+        def log(text):
+            # textTest = self.UI.TextElement((100,100),text,(255,0,0),30)
+            # someTest = self.UI.TextElement((400,100), "some stuff", (255,3,3), 30)
+            # self.UI.addElement(textTest,"text")
+            # self.UI.addElement(someTest,"text")
+            print str(text)
+
+        for cb in ownerBot.queue_of_code_blocks:
+            cb.execute(ownerBot, opponentBot, log)
+
     #This gets called by the renderer, and draws the bots into the proper location on the grid
     def drawBots(self,surface):
         c = (0,255,0)
