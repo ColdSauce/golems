@@ -79,9 +79,12 @@ class GenericBot:
     def __init__(self, name, sprite, speed=10, health=100,mana=100,element=Element.NONE,spell_xp=dict(),list_of_spells=[],queue_of_code_blocks = list(),pOwned = False):
         self.queue_of_code_blocks = queue_of_code_blocks
         self.name = name
-        self.sprite = sprite 
+        self.sprite = sprite
+        self.baseSpeed = speed 
         self.speed = speed
+        self.maxHealth = health
         self.health = health
+        self.maxMana = mana
         self.mana = mana
         self.element = element
         self.spell_xp = spell_xp

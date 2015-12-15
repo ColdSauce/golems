@@ -7,19 +7,25 @@ class BattleScene(scene.Scene):
         self.char1 = char1
         self.char2 = char2
         self.startBattle()
+
         self.UI = uimgr.UIManager()
         
-        testEle = self.UI.UIElement((100,100,250,250),borderColor = (0,255,0))
-        self.UI.addElement(testEle,"test")
-        self.nextTurn()
+        self.makeStatBox()
+        self.updateStatBox()
+         
+        #testEle = self.UI.UIElement((100,100,250,250),borderColor = (0,255,0))
+        #self.UI.addElement(testEle,"test")
 
+        #textTest = self.UI.TextElement((100,100),"This is a test",(255,0,0),30)
+        #self.UI.addElement(textTest,"text")
        
     def render(self,surface):
         surface.fill((150,150,150)) # bg color
         pygame.draw.rect(surface,(100,100,100),(0,0,1200,450)) # wall color + size
         surface.blit(self.grid,(0,300))
+        
         self.drawBots(surface)
-
+        self.drawStatBox(surface)
         self.UI.render(surface) 
         
     def handle_events(self, events):
@@ -200,6 +206,86 @@ class BattleScene(scene.Scene):
             self.drawHPBar(surface,bot,xLoc,height)
 
     #end drawBots
+    
+
+    def makeStatBox(self):
+        #o is our team, t is bot team
+        oColor = (255,0,0) 
+        tColor = (0,0,255)
+        bColor = (0,0,0)
+        textColor = (0,0,0) 
+        fontSizeL = 30
+        fontSize = 20
+        padL = 50 #large padding
+        pad = 10 #padding
+
+        oNum = len(self.c1Bots)
+        tNum = len(self.c2Bots)
+
+        sWidth = 1200
+        sHeight = 900
+
+        cWidth = 150
+        cHeight = 100
+        self.oStatContainer = self.UI.Container((padL,padL,cWidth,cHeight*oNum),bgColor = oColor, borderColor = bColor)
+        self.oStatBoxes = []
+      
+        self.tStatContainer = self.UI.Container((sWidth-cWidth-padL,padL,cWidth,cHeight*tNum),bgColor = tColor, borderColor = bColor)
+        self.tStatBoxes = []
+        
+        for i in range(0,oNum+tNum):
+           
+            statBox = None
+            if i < oNum:     
+                statBox = self.UI.Container((pad,pad+20,130,60), bgColor = oColor, borderColor = bColor)
+            else:
+                statBox = self.UI.Container((pad,pad+20,130,60), bgColor = tColor, borderColor = bColor)
+
+            yOff = 15
+            #ORDER of these elements matters for updateStatBox! 
+            hp = self.UI.Text((pad,pad),"UPDATEDLATER",textColor,fontSize)
+            statBox.addChild(hp)
+            
+            mp = self.UI.Text((pad,pad*2+yOff),"UPDATEDLATER",textColor,fontSize)
+            statBox.addChild(mp)
+
+            name = self.UI.Text((pad,-pad*2),"BOT NAME",textColor,fontSizeL)
+            statBox.addChild(name)
+            
+            if i < oNum:
+                self.oStatBoxes.append(statBox) 
+                self.oStatContainer.addChild(statBox)
+            else:
+                self.tStatBoxes.append(statBox)
+                self.tStatContainer.addChild(statBox)
+
+    def updateStatBox(self):
+        oNum = len(self.c1Bots)
+        tNum = len(self.c2Bots)
+        
+        #update all relevant bot info
+        def setTextLabels(bot,statBox):
+            hp = statBox[i].child(0)
+            hp.setText("Health : "+str(bot.health)+"/"+str(bot.maxHealth))
+
+            mp = statBox[i].child(1)
+            mp.setText("Mana : "+str(bot.mana)+"/"+str(bot.maxMana))
+       
+        #for all players bots
+        for i in range(0,oNum):
+            bot = self.c1Bots[i]
+            statBox = self.oStatBoxes
+            setTextLabels(bot,statBox)
+
+        #for all npc bots
+        for i in range(0,tNum):
+            bot = self.c2Bots[i]
+            statBox = self.tStatBoxes
+            setTextLabels(bot,statBox)
+
+    def drawStatBox(self,surface):
+        self.oStatContainer.render(surface)
+        self.tStatContainer.render(surface)
 
     def drawHPBar(self,surface,bot,x,y):
         bgColor = (0,0,0)

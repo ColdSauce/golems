@@ -13,13 +13,13 @@ class Singleton(object):
 class UIManager(Singleton):
     
     # Warning:
-    # do not put children of container objects in here, or they will be rendered twice.
+    # do not put children of 
     parentUI = {}
         
     def clear(self):
         self.parentUI = {}
 
-    def addElement(self, ele, ID):
+    def add(self, ele, ID):
         ele.ID = ID
         self.parentUI[ID] = ele
     
@@ -28,9 +28,13 @@ class UIManager(Singleton):
             self.parentUI[key].render(surface)
         
     # has a position, size, background, border, on/off switch for rendering
+    # usually you don't use these (you can though) everything else subclasses it.
     class UIElement(object):
         def __init__(self, rect, bgColor = None, borderColor = None, borderSize = 5):
             self.rect = rect
+            self.offset = (0,0)
+            self.position = (rect[0], rect[1])
+            self.size = (rect[2], rect[3])
             self.bgColor = bgColor
             self.borderColor = borderColor
             self.parent = None # changes when placed in a container
@@ -49,10 +53,10 @@ class UIManager(Singleton):
                 pX = pRect[0]
                 pY = pRect[1]
 
-                sX = self.rect[0]
-                sY = self.rect[1]
-                sW = self.rect[2]
-                sH = self.rect[3]
+                sX = self.position[0]
+                sY = self.position[1]
+                sW = self.size[0]
+                sH = self.size[1]
                 
                 newX = pX + sX
                 newY = pY + sY
@@ -66,7 +70,7 @@ class UIManager(Singleton):
                 pygame.draw.rect(surface, self.borderColor, self.rect, self.bSize)
             
 
-    class ImageElement(UIElement):
+    class Image(UIElement):
         def __init__(self, position, spriteSrc, sizeMod = None):
             self.image = pygame.image.load(spriteSrc).convert()
             self.position = position
@@ -100,7 +104,7 @@ class UIManager(Singleton):
             surface.blit(self.scaledImg, self.rect)
 
     # Text element
-    class TextElement(UIElement):
+    class Text(UIElement):
         def __init__(self, position, text, color, size):       
             self.font = pygame.font.SysFont("comicsansms", size)
             self.text = text
@@ -110,11 +114,10 @@ class UIManager(Singleton):
             
             self.rText = self.preRender() # sets the self.rect attr
             
-            super(type(self),self).__init__(self.rect)
+            super(type(self),self).__init__((position[0],position[1],self.width,self.height))
         
         def preRender(self):
-            self.width, self.height = self.font.size(self.text)
-            self.rect = (self.position[0],self.position[1],self.width,self.height)        
+            self.width, self.height = self.font.size(self.text) 
             renderedText = self.font.render(self.text, 0, self.color)
             return renderedText
 
@@ -134,13 +137,27 @@ class UIManager(Singleton):
             super(type(self),self).__init__(rect,bgColor,borderColor)
             self.children = []
 
-        def addUIElement(self, ele):
+        #Has an optional return value if u want the index ID to get it later.
+        def addChild(self, ele):
             self.children.append(ele)
             ele.parent = self
+            self.offsetChild(ele)
+            return self.children.index(ele)
+
+        def offsetChild(self, ele):
+            ele.offset = (self.offset[0]+self.position[0],self.offset[1]+self.position[1])
+            ele.rect = (ele.offset[0]+ele.position[0],ele.offset[1]+ele.position[1],ele.size[0],ele.size[1])
+            
+            if hasattr(ele, 'children'):
+                for i in range (0,len(ele.children)):
+                    ele.offsetChild(ele.children[i])
+ 
+        def child(self, ID):
+            return self.children[ID]
 
         def render(self,surface):
             super(type(self),self).render(surface)            
-            for i in range(0,self.children):
+            for i in range(0,len(self.children)):
                 self.children[i].render(surface)
 
     
