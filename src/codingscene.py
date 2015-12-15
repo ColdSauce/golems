@@ -3,7 +3,6 @@ import scene, game_objects, kbInput, pygame, sys
 isLinux = sys.platform.startswith("linux")
 if(isLinux):
     from gi.repository import Gtk
-    import gtk
     import sugar3.activity.activity
     from sugar3.graphics.toolbarbox import ToolbarBox
     from sugar3.activity.widgets import ActivityToolbarButton
@@ -407,7 +406,7 @@ class CodingScene(scene.Scene):
         return self.toolbars[0]
         
     def makeModeToolbar(self, activity):
-        toolbar = gtk.Toolbar()
+        toolbar = Gtk.Toolbar()
         
         addButton = ToolButton('mode-add')
         addButton.set_tooltip(_('Add Block Mode'))
@@ -437,11 +436,11 @@ class CodingScene(scene.Scene):
         self.currentBlockIndex = 0
         self.activity.set_toolbar_box(self.toolbars[modenum])
         self.toolbars[modenum].show()
-    def enterModeAdd(self):
+    def enterModeAdd(self, button=None):
         self.enterMode(0)
-    def enterModeModify(self):
+    def enterModSeModify(self, button=None):
         self.enterMode(1)
-    def enterModeDelete(self):
+    def enterModeDelete(self, button=None):
         self.enterMode(2)
         
     def makeGenericToolbar(self, activity):
@@ -483,7 +482,7 @@ class CodingScene(scene.Scene):
         return toolbar
         
     def makeBlockToolbar(self, activity):
-        toolbar = gtk.Toolbar()
+        toolbar = Gtk.Toolbar()
         
         btn = ToolButton('block-comment')
         btn.set_tooltip(_('Add Comment Block'))
@@ -542,25 +541,25 @@ class CodingScene(scene.Scene):
     def insertMenu(self, block):
         if(self.insert(block)):
             self.selIndex += 1
-    def insertBlockComment(self):
+    def insertBlockComment(self, button=None):
         insertMenu(game_objects.CommentBlock())
-    def insertBlockSay(self):
+    def insertBlockSay(self, button=None):
         insertMenu(game_objects.SayBlock())
-    def insertBlockWhile(self):
+    def insertBlockWhile(self, button=None):
         insertMenu(game_objects.WhileBlock())
-    def insertBlockIfMana(self):
+    def insertBlockIfMana(self, button=None):
         insertMenu(game_objects.IfManaBlock())
-    def insertBlockIfHealth(self):
+    def insertBlockIfHealth(self, button=None):
         insertMenu(game_objects.IfOwnHealthBlock())
-    def insertBlockHeal(self):
+    def insertBlockHeal(self, button=None):
         insertMenu(game_objects.HealBlock(20, 15))
-    def insertBlockFireball(self):
+    def insertBlockFireball(self, button=None):
         insertMenu(game_objects.FireballBlock(10, 15))
-    def insertBlockMossLeech(self):
+    def insertBlockMossLeech(self, button=None):
         insertMenu(game_objects.MossLeechBlock(10, 15))
-    def insertBlockDouse(self):
+    def insertBlockDouse(self, button=None):
         insertMenu(game_objects.DouseBlock(10, 15))
-    def insertBlockEndTurn(self):
+    def insertBlockEndTurn(self, button=None):
         insertMenu(game_objects.EndTurnBlock())
     
     def makeModToolbar(self, activity):
@@ -574,7 +573,7 @@ class CodingScene(scene.Scene):
         
         return toolbar
     
-    def menuEdit(self):
+    def menuEdit(self, button=None):
         self.blockMenu = True
         
     def makeDelToolbar(self, activity):
@@ -582,10 +581,13 @@ class CodingScene(scene.Scene):
         
         btn = ToolButton('block-delete')
         btn.set_tooltip(_('Delete Selected Block'))
-        btn.connect('clicked', self.remove)
+        btn.connect('clicked', self.menuRemove)
         btn.show()
         
         return toolbar
+        
+    def menuRemove(self, button=None):
+        self.remove()
         
         
 

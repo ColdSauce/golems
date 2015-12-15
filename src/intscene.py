@@ -88,7 +88,7 @@ class InteractiveScene(scene.Scene):
                 self.move(char,game_objects.Direction.LEFT)
         self.keysLastFrame = keys
     
-    def gotoCoding(self):
+    def gotoCoding(self, button = None):
         self.manager.go_to(scene.Scenes.CODING, plyr = self.main_player)
 
     def render(self, surface):

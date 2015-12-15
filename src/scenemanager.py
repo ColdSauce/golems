@@ -32,12 +32,8 @@ class SceneManager():
 
         self.scenes[sNum].manager = self
         self.scene = self.scenes[sNum]
-        self.scene.enter()
+        self.scene.enter() # Re-initialize a Scene if it needs it
         if(self.activity != None):
             self.activity.set_toolbar_box(self.toolbars[sNum])
             self.toolbars[sNum].show()
-        
-    def sugarBeginEdit(self):
-        if(self.scene == self.scenes[scene.Scenes.INTERACTIVE]):
-            self.go_to(scene.Scenes.CODING, plyr = self.scenes[scene.Scenes.INTERACTIVE].main_player)
 
