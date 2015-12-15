@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd' [
+	<!ENTITY stroke_color "#010101">
+	<!ENTITY fill_color "#ffffff">
+]>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="128"
+   height="128"
+   viewBox="0 0 128 128"
+   id="svg3336"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="block-mossleech.svg">
+  <defs
+     id="defs3338" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#010101"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="1"
+     inkscape:pageshadow="2"
+     inkscape:zoom="12.242152"
+     inkscape:cx="51.155712"
+     inkscape:cy="70.672652"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     inkscape:window-width="2560"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata3341">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-924.36216)">
+    <path
+       style="fill:&fill_color;"
+       d="m 4.390625,26.804688 0,63.074218 120.601565,0 0,-63.074218 z M 43.375,36.349609 c 3.000731,19.91381 0.768356,26.823034 -4.083984,34.470703 -6.859431,6.63533 -10.054022,3.838207 -14.376954,2.941407 l -5.228515,7.841797 -1.796875,-1.226563 4.902344,-7.595703 C 18.668661,69.91919 17.987537,65.138522 17.726562,60.201172 20.741748,46.481582 32.074014,41.369889 43.375,36.349609 Z m -2.486328,3.609375 -5.267578,10.103516 -4.328125,-2.544922 -0.50586,0.863281 4.371094,2.56836 -6.054687,11.61914 -4.886719,-3.349609 -0.566406,0.824219 4.986328,3.417969 -4.983336,9.089843 0.886718,0.462891 4.926696,-8.982422 4.3125,2.955078 0.566406,-0.824219 -4.412109,-3.02539 6.08789,-11.679688 4.078125,2.396485 0.50586,-0.861328 -4.121094,-2.421876 5.291016,-10.15039 z"
+       transform="translate(0,924.36216)"
+       id="rect4348"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccccccccccccccccccccccccccccc" />
+  </g>
+</svg>
