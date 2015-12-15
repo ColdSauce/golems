@@ -32,6 +32,8 @@ class GolemsGame:
         
         if(self.activity != None):
             manager.activity = self.activity
+            
+        keysLastFrame = pygame.key.get_pressed();
         
         while True:
             if(isLinux):
@@ -44,9 +46,13 @@ class GolemsGame:
                 elif event.type == pygame.VIDEORESIZE:
                     pygame.display.set_mode(event.size, pygame.RESIZABLE)
 
+            keys = pygame.key.get_pressed()
+            
             manager.scene.handle_events(events)
-            manager.scene.update()
+            manager.scene.update(keys, keysLastFrame)
             manager.scene.render(surface)
+            
+            keysLastFrame = keys[:]
 
             pygame.display.update()
             self.clock.tick(FPS)

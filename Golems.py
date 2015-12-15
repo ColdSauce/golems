@@ -15,12 +15,21 @@ try:
     
             # Build the Pygame canvas.
             self._pycanvas = sugargame.canvas.PygameCanvas(self)
-    
+
             # Create the game instance.
             self.gameInstance = GolemsGame()
     
             # Allow for creation of Sugar Toolbars.
             self.gameInstance.activity = self
+
+            # Note that set_canvas inplicitly calls read_file when
+            # resuming from the Journal.
+            self.set_canvas(self._pycanvas)
+            self._pycanvas.grab_focus()
+
+            # Start the game running (self.game.run is called when the
+            # activity contructor returns).
+            self._pycanvas.run_pygame(self.gameInstance.game_loop)
             
         # Loading saved state from the Journal
         def read_file(self, file_path):

@@ -19,7 +19,7 @@ class MenuScene(scene.Scene):
     def render(self, surface):
         surface.fill((0,0,0))
         surface.blit(self.label, (100,100))
-    def update(self):
+    def update(self, keys, keysLastFrame):
         pass
     def handle_events(self, events):
         for event in events:

@@ -15,7 +15,7 @@ class Scene():
     def render(self, surface):
         raise NotImplementedError
 
-    def update(self):
+    def update(self, keys, keysLastFrame):
         raise NotImplementedError
 
     def handle_events(self, events):

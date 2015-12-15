@@ -42,8 +42,7 @@ class BattleScene(scene.Scene):
     def handle_events(self, events):
         pass
 
-    def update(self):
-        keys = pygame.key.get_pressed()
+    def update(self, keys, keysLastFrame):
         if kbInput.isUpPressed(keys):
             self.moveBotByDir(self.c1Bots[0],0,1)
             self.moveBotByDir(self.c2Bots[0],0,1)

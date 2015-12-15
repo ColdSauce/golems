@@ -58,25 +58,25 @@ class InteractiveScene(scene.Scene):
         self.movable_characters.append(self.main_player)
         
         self.renderMenu = False
-        self.keysLastFrame = None
+        
+        self.activity = None
         
         self.menuIndex = 0
 
-    def doKeys(self,char):
+    def doKeys(self, keys, keysLastFrame, char):
         if char.moving: # Player's currently moving, ignore keypresses
             return
-        keys = pygame.key.get_pressed()
-        if kbInput.isMenuPressed(keys) and not kbInput.isMenuPressed(self.keysLastFrame):
+        if self.activity == None and kbInput.isMenuPressed(keys) and not kbInput.isMenuPressed(keysLastFrame):
             self.renderMenu = not self.renderMenu
         if(self.renderMenu):
-            if kbInput.isUpPressed(keys) and not kbInput.isUpPressed(self.keysLastFrame):
+            if kbInput.isUpPressed(keys) and not kbInput.isUpPressed(keysLastFrame):
                 pass  # If we have more items, this decrements the menuIndex
-            elif kbInput.isDownPressed(keys) and not kbInput.isDownPressed(self.keysLastFrame):
+            elif kbInput.isDownPressed(keys) and not kbInput.isDownPressed(keysLastFrame):
                 pass  # If we have more items, this increments the menuIndex
-            elif kbInput.isOkayPressed(keys) and not kbInput.isOkayPressed(self.keysLastFrame):
+            elif kbInput.isOkayPressed(keys) and not kbInput.isOkayPressed(keysLastFrame):
                 self.renderMenu = False
                 self.manager.go_to(scene.Scenes.CODING, plyr = self.main_player)
-            elif kbInput.isBackPressed(keys) and not kbInput.isBackPressed(self.keysLastFrame):
+            elif kbInput.isBackPressed(keys) and not kbInput.isBackPressed(keysLastFrame):
                 self.renderMenu = False
         else:
             # Use change_direction instead of just changing the
@@ -89,7 +89,6 @@ class InteractiveScene(scene.Scene):
                 self.move(char,game_objects.Direction.DOWN)
             elif kbInput.isLeftPressed(keys):
                 self.move(char,game_objects.Direction.LEFT)
-        self.keysLastFrame = keys
     
     def gotoCoding(self, button = None):
         self.manager.go_to(scene.Scenes.CODING, plyr = self.main_player)
@@ -132,19 +131,21 @@ class InteractiveScene(scene.Scene):
         if(not self.map.isSolid(character.gridX + xMod, character.gridY + yMod)):
             character.moving = True
 
-    def update(self):
+    def update(self, keys, keysLastFrame):
         for character in self.movable_characters:
             if character.moving:
                 if character == self.main_player:
                     character.move(10) 
                 else:
                     character.move()
-        self.doKeys(self.main_player)
+        self.doKeys(keys, keysLastFrame, self.main_player)
 
     def handle_events(self, events):
         pass
 
     def makeToolbar(self, activity):
+        self.activity = activity
+        
         toolbar = ToolbarBox()
         
         activity_button = ActivityToolbarButton(activity)
