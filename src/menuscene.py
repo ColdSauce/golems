@@ -16,7 +16,4 @@ class MenuScene(scene.Scene):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 print "this works"
                 self.manager.go_to(scene.Scenes.INTERACTIVE)
-            elif event.type == pygame.VIDEORESIZE:
-                self.width,self.height = event.size
-
-
+            

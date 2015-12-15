@@ -2,10 +2,6 @@ import pygame, kbInput, game_objects, scene, worldmap
 
 class InteractiveScene(scene.Scene):
     def __init__(self):
-        global SCREEN_HEIGHT
-        global SCREEN_WIDTH
-        self.height = 900 # help with globals?
-        self.width = 1200
         self.movable_characters = []
         self.map = worldmap.Map(30, 15)
         self.font = pygame.font.SysFont("couriernew", 24)
@@ -87,8 +83,7 @@ class InteractiveScene(scene.Scene):
     def render(self, surface):
         surface.fill((0,0,0))
         self.map.render(surface, self.main_player.gridX * 50 + self.main_player.xOffset, self.main_player.gridY * 50 + self.main_player.yOffset)
-        width = self.width
-        height = self.height
+        width, height = surface.get_size()
         for character in self.movable_characters:
             surface.blit(character.sprite, ((width / 2) - 25 - (self.main_player.gridX * 50 + self.main_player.xOffset) + (character.gridX * 50 + character.xOffset), (height / 2) - 25 - (self.main_player.gridY * 50 + self.main_player.yOffset) + (character.gridY * 50 + character.yOffset)))
         if(self.renderMenu):
@@ -133,10 +128,6 @@ class InteractiveScene(scene.Scene):
         self.doKeys(self.main_player)
 
     def handle_events(self, events):
-        for event in events:
-            if event.type == pygame.VIDEORESIZE:
-                self.width,self.height = event.size
-
         pass
 
 
