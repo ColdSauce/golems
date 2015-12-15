@@ -1,4 +1,4 @@
-import pygame, kbInput, game_objects, scene, uimgr
+import pygame, kbInput, game_objects, scene, uimgr,time
 
 class BattleScene(scene.Scene):
     
@@ -106,6 +106,19 @@ class BattleScene(scene.Scene):
         pass
         
         
+    def showDefeatSplash(self):
+        print "Defeated Har Har Har"
+
+    def showVictorySplash(self):
+        print "Victorious hyuk hyuk hyuk"
+
+    def testDidLose(self, bot):
+        if bot.health <= 0:
+            if bot in self.c1Bots:
+                self.showDefeatSplash()
+            else:
+                self.showVictorySplash()
+
     def nextTurn(self):
         # Readiness increases for all bots.
         for bot in self.allBots:
@@ -118,24 +131,33 @@ class BattleScene(scene.Scene):
                 fastestBot = bot
         slowestBot = self.allBots[map(lambda x: x != fastestBot, self.allBots).index(True)]
 
-        self.takeAction(fastestBot, slowestBot)
-        self.takeAction(slowestBot, fastestBot)
+
+        while slowestBot.health > 0 and fastestBot.health > 0:
+            print "It's " + fastestBot.name + "'s turn!"
+            self.takeAction(fastestBot, slowestBot)
+            time.sleep(3)
+
+            print "It's " + slowestBot.name + "'s turn!"
+            self.takeAction(slowestBot, fastestBot)
+            time.sleep(3)
+
+
+        self.testDidLose(slowestBot)
+        self.testDidLose(fastestBot)
         
     #this is where the CodeBlocks stuff will take place?
     def takeAction(self,ownerBot, opponentBot):
         ownerBot.ready -= ownerBot.speed
-        print str(ownerBot.queue_of_code_blocks[0])
-        ownerBot.queue_of_code_blocks[0].execute(ownerBot, opponentBot, self.log)
+        def log(text):
+            # textTest = self.UI.TextElement((100,100),text,(255,0,0),30)
+            # someTest = self.UI.TextElement((400,100), "some stuff", (255,3,3), 30)
+            # self.UI.addElement(textTest,"text")
+            # self.UI.addElement(someTest,"text")
+            print str(text)
 
+        for cb in ownerBot.queue_of_code_blocks:
+            cb.execute(ownerBot, opponentBot, log)
 
-    def log(text):
-        # textTest = self.UI.TextElement((100,100),text,(255,0,0),30)
-        # someTest = self.UI.TextElement((400,100), "some stuff", (255,3,3), 30)
-        # self.UI.addElement(textTest,"text")
-        print "logged!"
-        # self.UI.addElement(someTest,"text")
-        print str(text)
-                     
     #This gets called by the renderer, and draws the bots into the proper location on the grid
     def drawBots(self,surface):
         c = (0,255,0)

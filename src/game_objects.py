@@ -232,7 +232,7 @@ class WhileBlock(CodeBlock):
         return heightsum + self.cheight + 8
     def execute(self, ownerBot, opponentBot, callback, dryRun = False):
         for block in self.blocks:
-            block.execute(ownerBot,opponentBot)
+            block.execute(ownerBot,opponentBot, callback)
     def insert(self, blockToInsert, arrowIndex):
         if(arrowIndex == 0):  # Insert before current block
             return False  # Should have been handled by calling function 
@@ -633,7 +633,7 @@ class HealBlock(CodeBlock):
     def execute(self, ownerBot, opponentBot, callback, dryRun = False):
         if dryRun:
             return (ownerBot.mana - self.mana_cost, False)
-        callback(ownerBot.name + " healed " + opponentBot.name + " Cost: " + self.mana_cost + " Amount: " + self.heal_amount)
+        callback(ownerBot.name + " healed " + opponentBot.name + " Cost: " + str(self.mana_cost) + " Amount: " + str(self.heal_amount))
         opponentBot.mana -= self.mana_cost
         ownerBot.health = (ownerBot.health + self.heal_amount) % 100
 
@@ -657,18 +657,20 @@ class FireballBlock(CodeBlock):
         return self.cheight + 8
     def getRenderHeight(self):
         return self.cheight + 8
-    def execute(self, ownerBot, opponentBot, cabllback, dryRun = False):
+    def execute(self, ownerBot, opponentBot, callback, dryRun = False):
         if dryRun:
             return (ownerBot.mana - self.mana_cost, False)
 
-        callback(ownerBot.name + " hit " + opponentBot.name + "w/ a Fireball!" +  " Cost: " + self.mana_cost + " Damage: " + self.damage_amount)
+        callback(ownerBot.name + " hit " + opponentBot.name + "w/ a Fireball!" +  " Cost: " + str(self.mana_cost) + " Damage: " + str(self.damage_amount))
         opponentBot.mana -= self.mana_cost
-        opponenetBot.health -= self.damage_amount
+        opponentBot.health -= self.damage_amount
 
 # Moss Leech Block.  Causes the Golem to cast Moss Leech, dealing natura damage on an opponent.
 class MossLeechBlock(CodeBlock):
     def __init__(self, damage_amount, mana_cost):
         super(MossLeechBlock, self).__init__()
+        self.mana_cost = mana_cost
+        self.damage_amount = damage_amount
         self.cwidth, self.cheight = self.font.size("Cast Moss Leech at the enemy")
         self.fontRender = self.font.render("Cast Moss Leech at the enemy", 0, (255, 255, 255), (0, 128, 0))
     def render(self, surface, xOffset = 0, yOffset = 0, selIndex = -1, mode = -1):
@@ -686,7 +688,7 @@ class MossLeechBlock(CodeBlock):
     def execute(self, ownerBot, opponentBot, callback, dryRun = False):
         if dryRun:
             return (ownerBot.mana - self.mana_cost, False)
-        callback(ownerBot.name + " moss leeched " + opponentBot.name + "!" + " Cost: " + self.mana_cost + " Damage: " + self.damage_amount)
+        callback(ownerBot.name + " moss leeched " + opponentBot.name + "!" + " Cost: " + str(self.mana_cost) + " Damage: " + str(self.damage_amount))
         opponentBot.mana -= self.mana_cost
         opponentBot.health -= self.damage_amount
 
@@ -713,7 +715,7 @@ class DouseBlock(CodeBlock):
     def execute(self, ownerBot, opponentBot, callback, dryRun = False):
         if dryRun:
             return (ownerBot.mana - self.mana_cost, False)
-        callback(ownerBot.name + " doused " + opponentBot.name + "!" + " Cost: " + self.mana_cost + " Damage: " + self.damage_amount)
+        callback(ownerBot.name + " doused " + opponentBot.name + "!" + " Cost: " + str(self.mana_cost) + " Damage: " + str(self.damage_amount))
         opponentBot.mana -= self.mana_cost
         opponentBot.health -= self.damage_amount
 
