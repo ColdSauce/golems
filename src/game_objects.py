@@ -342,9 +342,9 @@ class IfManaBlock(CodeBlock):
         for i in range(0, len(self.falseBlocks)):
             heightsum += self.falseBlocks[i].render(surface, xOffset + 8, yOffset + heightsum, selIndex - selCount, mode)
             if(mode == 0):
-                selCount += self.trueBlocks[i].getArrowCount()
+                selCount += self.falseBlocks[i].getArrowCount()
             else:
-                selCount += self.trueBlocks[i].getBlockCount()
+                selCount += self.falseBlocks[i].getBlockCount()
         if(mode == 0 and selIndex == selCount):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + heightsum + 1), (xOffset - 10, yOffset + 6 + heightsum), (xOffset - 10, yOffset + heightsum), (xOffset + self.cwidth + 26, yOffset + heightsum), (xOffset + self.cwidth + 26, yOffset + 6 + heightsum), (xOffset + self.cwidth + 16, yOffset + heightsum + 1)])
         pygame.draw.rect(surface, (128, 205, 255), (xOffset, yOffset + 1 + heightsum, self.cwidth + 16, self.cheight + 6))
@@ -492,9 +492,9 @@ class IfOwnHealthBlock(CodeBlock):
         for i in range(0, len(self.falseBlocks)):
             heightsum += self.falseBlocks[i].render(surface, xOffset + 8, yOffset + heightsum, selIndex - selCount, mode)
             if(mode == 0):
-                selCount += self.trueBlocks[i].getArrowCount()
+                selCount += self.falseBlocks[i].getArrowCount()
             else:
-                selCount += self.trueBlocks[i].getBlockCount()
+                selCount += self.falseBlocks[i].getBlockCount()
         if(mode == 0 and selIndex == selCount):
             pygame.draw.polygon(surface, (255, 255, 255), [(xOffset, yOffset + heightsum + 1), (xOffset - 10, yOffset + 6 + heightsum), (xOffset - 10, yOffset + heightsum), (xOffset + self.cwidth + 26, yOffset + heightsum), (xOffset + self.cwidth + 26, yOffset + 6 + heightsum), (xOffset + self.cwidth + 16, yOffset + heightsum + 1)])
         pygame.draw.rect(surface, (255, 200, 200), (xOffset, yOffset + 1 + heightsum, self.cwidth + 16, self.cheight + 6))
