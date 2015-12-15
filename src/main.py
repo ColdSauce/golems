@@ -6,7 +6,10 @@ SCREEN_WIDTH = 100
 SCREEN_HEIGHT = 100
 isLinux = sys.platform.startswith("linux")
 if(isLinux):
-    from gi.repository import Gtk
+    try:
+        from gi.repository import Gtk
+    except ImportError:
+        isLinux = False
 
    
 class GolemsGame:

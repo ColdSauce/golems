@@ -1,12 +1,15 @@
 import scene, pygame, sys
 isLinux = sys.platform.startswith("linux")
 if(isLinux):
-    from gi.repository import Gtk
-    import sugar3.activity.activity
-    from sugar3.graphics.toolbarbox import ToolbarBox
-    from sugar3.activity.widgets import ActivityToolbarButton
-    from sugar3.graphics.toolbutton import ToolButton
-    from sugar3.activity.widgets import StopButton
+    try:
+        from gi.repository import Gtk
+        import sugar3.activity.activity
+        from sugar3.graphics.toolbarbox import ToolbarBox
+        from sugar3.activity.widgets import ActivityToolbarButton
+        from sugar3.graphics.toolbutton import ToolButton
+        from sugar3.activity.widgets import StopButton
+    except ImportError:
+        isLinux = False
 
 class MenuScene(scene.Scene):
     def __init__(self):
