@@ -74,3 +74,12 @@ class GolemsActivity(sugar3.activity.activity.Activity):
     # Writing saved state to the Journal
     def write_file(self, file_path):
         self.gameInstance.write_file(file_path)
+
+def main():
+    pygame.init()
+    pygame.display.set_mode((1200,900), pygame.RESIZABLE) # 1200,900 is the XO's screen resolution.
+    game = GolemsGame()
+    game.game_loop()
+
+if __name__ == '__main__':
+    main()
