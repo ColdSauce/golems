@@ -191,15 +191,16 @@ class BattleScene(scene.Scene):
         self.logBox.render(surface)
             
     def updateLogBox(self):
+        maxLines = 10
         numLines = len(self.logLineText)
         start = 0
-        if numLines > 10: start = numLines - 10
+        if numLines > maxLines: start = numLines - maxLines
 
-        for i in range(start, start+10):
+        for i in range(start, start + maxLines):
             if i >= numLines: 
                 self.logLineUI[i-start].setText("")
             else:
-                line = self.logLineText[i]
+                line = self.logLineText[numLines - i - 1] # the most recent line is drawn on the bottom
                 self.logLineUI[i-start].setText(line) 
             
 
@@ -337,7 +338,7 @@ class BattleScene(scene.Scene):
         w = 40 #Width
         h = 15 #Height
 
-        botHPPercentage = bot.health/bot.maxHealth
+        botHPPercentage = float(bot.health)/float(bot.maxHealth)
 
         bgRect = (x+adj-b,y-b,w+b*2,h+b*2)
         hpRect = (x+adj,y,w*botHPPercentage,h)

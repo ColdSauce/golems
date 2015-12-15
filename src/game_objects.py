@@ -182,8 +182,7 @@ class SayBlock(CodeBlock):
     def getRenderHeight(self):
         return self.cheight + 8
     def execute(self, ownerBot, opponentBot, callback, dryRun = False):
-
-        return 0
+        callback(ownerBot.name + " says: " + self.message)
     def setMessage(self, newMessage):
         self.message = newMessage
         self.cwidth, self.cheight = self.font.size("Say \"" + self.message + "\"")
