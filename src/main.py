@@ -6,16 +6,20 @@ SCREEN_WIDTH = 100
 SCREEN_HEIGHT = 100
 isLinux = sys.platform.startswith("linux")
 if(isLinux):
-    from gi.repository import Gtk
+    try:
+        from gi.repository import Gtk
+    except ImportError:
+        isLinux = False
 
    
 class GolemsGame:
     
     def __init__(self):
         self.clock = pygame.time.Clock()
+        self.activity = None
                 
         # run the game loop
-    def game_loop(self):
+    def game_loop(self, editmodeButton = None):
         global SCREEN_WIDTH
         global SCREEN_HEIGHT
         FPS = 30
@@ -25,6 +29,12 @@ class GolemsGame:
         SCREEN_HEIGHT = height
 
         manager = scenemanager.SceneManager()
+        
+        if(self.activity != None):
+            manager.activity = self.activity
+            
+        keysLastFrame = pygame.key.get_pressed();
+        
         while True:
             if(isLinux):
                 while Gtk.events_pending():
@@ -36,9 +46,13 @@ class GolemsGame:
                 elif event.type == pygame.VIDEORESIZE:
                     pygame.display.set_mode(event.size, pygame.RESIZABLE)
 
+            keys = pygame.key.get_pressed()
+            
             manager.scene.handle_events(events)
-            manager.scene.update()
+            manager.scene.update(keys, keysLastFrame)
             manager.scene.render(surface)
+            
+            keysLastFrame = keys[:]
 
             pygame.display.update()
             self.clock.tick(FPS)

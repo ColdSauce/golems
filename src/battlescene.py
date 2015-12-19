@@ -1,4 +1,15 @@
-import pygame, kbInput, game_objects, scene, uimgr, time, random
+import pygame, kbInput, game_objects, scene, uimgr, time, random, sys
+isLinux = sys.platform.startswith("linux")
+if(isLinux):
+    try:
+        from gi.repository import Gtk
+        import sugar3.activity.activity
+        from sugar3.graphics.toolbarbox import ToolbarBox
+        from sugar3.activity.widgets import ActivityToolbarButton
+        from sugar3.graphics.toolbutton import ToolButton
+        from sugar3.activity.widgets import StopButton
+    except ImportError:
+        isLinux = False
 
 class BattleScene(scene.Scene):
     
@@ -35,16 +46,16 @@ class BattleScene(scene.Scene):
     def handle_events(self, events):
         pass
 
-    def update(self):
        
-        # Take turns at interval defined by self.gameSpeed 
+    def update(self, keys, keysLastFrame):
+        
         currentTime = time.time()
         if currentTime >= self.nextTurnTime:
             self.nextTurn()
             self.nextTurnTime += self.gameSpeed
-
         
         keys = pygame.key.get_pressed()
+            
         if kbInput.isUpPressed(keys):
             self.moveBotByDir(self.c1Bots[0],0,1)
             self.moveBotByDir(self.c2Bots[0],0,1)
@@ -100,7 +111,8 @@ class BattleScene(scene.Scene):
     def sendToBattle(self, c1, c2):
         self.char1 = c1
         self.char2 = c2
-        prepBattle()
+        self.prepBattle()
+        
 
     def prepBattle(self):
         self.c1Bots = self.char1.list_of_bots
@@ -132,18 +144,19 @@ class BattleScene(scene.Scene):
                 if self.grid2[rX][rY] is None: break
         self.moveToSpace(bot,rX,rY)
     
-    def showDefeatSplash(self):
-        print "Defeated Har Har Har"
+        
+    def doDefeat(self):
+        self.manager.go_to(scene.Scenes.INTERACTIVE) 
 
-    def showVictorySplash(self):
-        print "Victorious hyuk hyuk hyuk"
+    def doVictory(self, bot):
+        self.manager.go_to(scene.Scenes.INTERACTIVE, deadBot=bot) 
 
     def testDidLose(self, bot):
         if bot.health <= 0:
             if bot.pOwned:
-                self.showDefeatSplash()
+                self.doDefeat()
             else:
-                self.showVictorySplash()
+                self.doVictory(bot)
 
     def nextTurn(self):
         # Readiness increases for all bots.
@@ -426,4 +439,23 @@ class BattleScene(scene.Scene):
         
         return final
     #End makeGrid
- 
+    
+    def makeToolbar(self, activity):
+        toolbar = ToolbarBox()
+        
+        activity_button = ActivityToolbarButton(activity)
+        toolbar.toolbar.insert(activity_button, -1)
+        activity_button.show()
+        
+        separator = Gtk.SeparatorToolItem()
+        separator.props.draw = False
+        separator.set_expand(True)
+        toolbar.toolbar.insert(separator, -1)
+        separator.show()
+        
+        stop_button = StopButton(activity)
+        toolbar.toolbar.insert(stop_button, -1)
+        stop_button.show()
+        
+        return toolbar
+    #End makeToolbar

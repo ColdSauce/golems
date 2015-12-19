@@ -1,4 +1,15 @@
-import scene, pygame
+import scene, pygame, sys
+isLinux = sys.platform.startswith("linux")
+if(isLinux):
+    try:
+        from gi.repository import Gtk
+        import sugar3.activity.activity
+        from sugar3.graphics.toolbarbox import ToolbarBox
+        from sugar3.activity.widgets import ActivityToolbarButton
+        from sugar3.graphics.toolbutton import ToolButton
+        from sugar3.activity.widgets import StopButton
+    except ImportError:
+        isLinux = False
 
 class MenuScene(scene.Scene):
     def __init__(self):
@@ -8,12 +19,29 @@ class MenuScene(scene.Scene):
     def render(self, surface):
         surface.fill((0,0,0))
         surface.blit(self.label, (100,100))
-    def update(self):
+    def update(self, keys, keysLastFrame):
         pass
-    def handle_events(self,events):
+    def handle_events(self, events):
         for event in events:
             #print("event is " + str(event)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 print "this works"
                 self.manager.go_to(scene.Scenes.INTERACTIVE)
-            
+    def makeToolbar(self, activity):
+        toolbar = ToolbarBox()
+        
+        activity_button = ActivityToolbarButton(activity)
+        toolbar.toolbar.insert(activity_button, -1)
+        activity_button.show()
+        
+        separator = Gtk.SeparatorToolItem()
+        separator.props.draw = False
+        separator.set_expand(True)
+        toolbar.toolbar.insert(separator, -1)
+        separator.show()
+        
+        stop_button = StopButton(activity)
+        toolbar.toolbar.insert(stop_button, -1)
+        stop_button.show()
+        
+        return toolbar
