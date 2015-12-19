@@ -13,6 +13,8 @@ class BattleScene(scene.Scene):
 
         self.UI = uimgr.UIManager()
         
+        self.golemSprites = self.UI.Image((0,0), "res/golems.png", spriteSheet = True, numSprites = 5)        
+ 
         self.makeStatBox()
         self.updateStatBox()
         self.makeLogBox()
@@ -34,13 +36,14 @@ class BattleScene(scene.Scene):
         pass
 
     def update(self):
-        
+       
+        # Take turns at interval defined by self.gameSpeed 
         currentTime = time.time()
         if currentTime >= self.nextTurnTime:
-            #print "taking turn at time " + str(currentTime) # works
             self.nextTurn()
             self.nextTurnTime += self.gameSpeed
 
+        
         keys = pygame.key.get_pressed()
         if kbInput.isUpPressed(keys):
             self.moveBotByDir(self.c1Bots[0],0,1)
@@ -54,7 +57,7 @@ class BattleScene(scene.Scene):
         elif kbInput.isLeftPressed(keys):
             self.moveBotByDir(self.c1Bots[0],-1,0)
             self.moveBotByDir(self.c2Bots[0],-1,0)
-
+        
         
     def moveBotByDir(self,bot,xMod,yMod):
         oldX = bot.location[0]
@@ -112,13 +115,23 @@ class BattleScene(scene.Scene):
         self.grid1 = [[None] * 3 for i in range(3)]
         self.grid2 = [[None] * 3 for i in range(3)]
 
-        #this is just hard coded for a 1v1 fight. We need to write a real function for this later.
-        self.moveToSpace(self.c1Bots[0],1,1)
-        self.moveToSpace(self.c2Bots[0],1,1)
         
         for bot in self.allBots:
+            self.randomlyPlaceBot(bot)
             bot.ready = 0
-        
+
+    def randomlyPlaceBot(self,bot):
+        rX = None
+        rY = None
+        while(True):
+            rX = random.randint(0,2)
+            rY = random.randint(0,2)
+            if(bot.pOwned):
+                if self.grid1[rX][rY] is None: break
+            else:
+                if self.grid2[rX][rY] is None: break
+        self.moveToSpace(bot,rX,rY)
+    
     def showDefeatSplash(self):
         print "Defeated Har Har Har"
 
@@ -201,20 +214,20 @@ class BattleScene(scene.Scene):
                 self.logLineUI[i-start].setText("")
             else:
                 line = self.logLineText[numLines - i - 1] # the most recent line is drawn on the bottom
-                self.logLineUI[i-start].setText(line) 
-            
+                self.logLineUI[i-start].setText(line)
+               
 
     #This gets called by the renderer, and draws the bots into the proper location on the grid
     def drawBots(self,surface):
         c = (0,255,0)
         c2 = (255,0,255)
-        testBot = pygame.Surface((80,80))
-        pygame.draw.circle(testBot,c2,(40,40),40)
-        testBot.set_colorkey((0,0,0))
+        #testBot = pygame.Surface((80,80))
+        #pygame.draw.circle(testBot,c2,(40,40),40)
+        #testBot.set_colorkey((0,0,0))
        
         baseX = 300
         xInc = 75
-        xIncMod = 20
+        xIncMod = 25
         y0 = 650
         y1 = 575
         y2 = 500
@@ -224,8 +237,14 @@ class BattleScene(scene.Scene):
             y = bot.location[1]
             #print("botX:" + str(x) + ", botY:" + str(y))
             height = y0
-            if y is 1: height = y1
-            if y is 2: height = y2
+            self.golemSprites.setMod(4)
+            if y is 1:
+                height = y1
+                self.golemSprites.setMod(3.5)
+            if y is 2:
+                height = y2
+                self.golemSprites.setMod(3)
+                    
            
             xSpec = (2-x)*xIncMod
             if y is 0 : xSpec = 0
@@ -233,17 +252,28 @@ class BattleScene(scene.Scene):
 
             xSpec2 = x*xIncMod
             if y is 0 : xSpec2 = 0
-            if y is 1 : xSpec2 = xSpec2/2                    
+            if y is 1 : xSpec2 = xSpec2/2
+
+            golemYAdj = -30
+            if y is 1: golemYAdj = -30
+            if y is 2: golemYAdj = -20 
+
+            golemXAdj = 0
+            if y is 2: golemXAdj = 5                   
             
+
             xLoc = None
             if bot.pOwned is True:
                 xLoc = baseX+xInc*x+xSpec
-                surface.blit(testBot,(xLoc,height))
+                self.golemSprites.moveTo((xLoc + golemXAdj, height + golemYAdj))
+                self.golemSprites.renderSprite(surface,bot.element)
                 
             else:
                 xLoc = baseX+370+xInc*x-xSpec2
-                surface.blit(testBot,(xLoc,height))
-            self.drawHPBar(surface,bot,xLoc,height)
+                self.golemSprites.moveTo((xLoc + golemXAdj, height + golemYAdj))
+                self.golemSprites.renderSprite(surface,bot.element,reverse=True)
+            
+            self.drawHPBar(surface,bot,xLoc,height-30)
 
     #end drawBots
     

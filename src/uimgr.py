@@ -11,27 +11,7 @@ class Singleton(object):
 # Any class can use this by importing uimgr and getting an instance of the manager.
 # I know the singleton stuff is weird, but just call uimgr.UIManager() to get this instance
 class UIManager(Singleton):
-    
-    
-    # Put things in here you want to be rendered automatically.
-    # Containers will automatically render their children.
-    # You can also simply keep a local reference to the UIElement and render it that way. 
-    parentUI = {}
-        
-    def clear(self):
-        self.parentUI = {}
-
-    def add(self, ele, ID):
-        ele.ID = ID
-        self.parentUI[ID] = ele
-
-    def getUI(self, ID):
-        return
-        
-    def render(self, surface):
-        for key in self.parentUI.keys():
-            self.parentUI[key].render(surface)
-        
+       
     # has a position, size, background, border, on/off switch for rendering
     # usually you don't use these (you can though) everything else subclasses it.
     class UIElement(object):
@@ -66,27 +46,31 @@ class UIManager(Singleton):
                 newX = pX + sX
                 newY = pY + sY
                 return (newX,newY,sW,sH)
-    
+        
+        def moveTo(self, position):
+            self.rect = (position[0], position[1], self.rect[2], self.rect[3])
+
         def render(self, surface):
             if self.bgColor is not None:
                 pygame.draw.rect(surface, self.bgColor, self.rect)
 
             if self.borderColor is not None:
                 pygame.draw.rect(surface, self.borderColor, self.rect, self.bSize)
+    
             
 
     class Image(UIElement):
-        def __init__(self, position, spriteSrc, sizeMod = None):
+        def __init__(self, position, spriteSrc, sizeMod = 1, spriteSheet = False, numSprites = 1):
             self.image = pygame.image.load(spriteSrc).convert()
             self.position = position
-    
-            if sizeMod is None: 
-                self.scaledImg = self.image
-            else:
-                self.setMod(sizeMod)
-                self.scaledImg = self.scaleImage(sizeMod)
-                     
-            self.setRect()
+            self.isSpriteSheet = spriteSheet
+            if spriteSheet:
+                size = self.image.get_size()
+                self.spriteWidth = size[0]/numSprites
+                self.spriteHeight = size[1]
+                self.spriteNum = 0
+                
+            self.setMod(sizeMod)                     
             super(type(self),self).__init__(self.rect)
         
         def setMod(self, mod):
@@ -95,15 +79,32 @@ class UIManager(Singleton):
             self.setRect()
 
         def setRect(self):
-            x = position[0]
-            y = position[1]
+            x = self.position[0]
+            y = self.position[1]
             size = self.scaledImg.get_size()
             self.rect = (x,y,size[0],size[1])
 
         def scaleImage(self):
-            size = self.image.get_size() 
-            self.scaledImg = pygame.transform.scale(self.image,(int(size[0]*self.mod),int(size[1]*self.mod)))
-    
+            if self.isSpriteSheet:
+                size = (self.spriteWidth, self.spriteHeight)
+                sprite = pygame.Surface(size).convert()
+                sprite.blit(self.image,(0,0),(self.spriteNum*self.spriteWidth,0,size[0],size[1]))
+                self.scaledImg = pygame.transform.scale(sprite,(int(size[0]*self.mod),int(size[1]*self.mod)))
+            else:
+                size = self.image.get_size() 
+                self.scaledImg = pygame.transform.scale(self.image,(int(size[0]*self.mod),int(size[1]*self.mod)))
+            self.scaledImg.set_colorkey((0,0,0))
+ 
+        def renderSprite(self, surface, spriteNum, reverse = False):
+            self.spriteNum = spriteNum
+            self.scaleImage()
+            super(type(self),self).render(surface)
+            if reverse:
+                flipped = pygame.transform.flip(self.scaledImg,True,False) # flip on X axis
+                surface.blit(flipped, self.rect)
+            else:
+                surface.blit(self.scaledImg, self.rect)
+
         def render(self, surface):
             super(type(self),self).render(surface)
             surface.blit(self.scaledImg, self.rect)
